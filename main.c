@@ -6,12 +6,16 @@
 
 int main(){
     int menuInicial;
-    
+    char comando[10];
     
     
     imprimirMenuInicial();
+    fgets(comando, sizeof(char) * 10; stdin);
+    removeN(comando);
+    convertM(comando);
+
     while (1){
-        scanf("%d", &menuInicial);
+
         if(menuInicial == 1){
             char nome[28];
             char nivel;

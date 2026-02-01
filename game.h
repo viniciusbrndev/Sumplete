@@ -7,5 +7,9 @@
     }Jogo;
     void imprimirMenuInicial();
     void imprimeTabela(char nivel);
+    void convertM(char *palavra);
+    void removeN(char *palavra);
+    void limparBuffer();
+    int verificarCmdMenu(char *comando)
 
 #endif // GAME_H
