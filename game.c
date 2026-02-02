@@ -4,6 +4,12 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+//constantes
+#define VAZIA 0
+#define ATIVA 1
+#define REMOVIDA 2
+#define REMOVER 11
+#define ADICIONAR 12
 //Elementos para tabelas
 #define TAB_HOR "\u2501" // ━ (horizontal)
 #define TAB_VER "\u2503" // ┃ (vertical)
@@ -73,36 +79,50 @@ void imprimirMenuInicial(){
 
 }
 
-void imprimeTabela(char nivel){
+void imprimeTabela(char nivel, Celula **matriz){
     int cont;
 
     if(nivel == 'F'){
         cont = 2;
-    
     }
     else if(nivel=='M'){
         cont = 4;
-        
     }
-    else{
-        
+    else if(nivel == 'D'){
         cont = 6;
     
     }
+    else{
+        printf("Dificuldade inválida");
+        return;
+    }
 
     printf("%s", TAB_TL);
-    for(int i= 0; i<cont;i++){
+    for(int i = 0; i < cont; i++){
         printf("%s%s%s%s", TAB_HOR,TAB_HOR,TAB_HOR, TAB_TJ);   //imprime a parte de cima
     }
     printf("%s%s%s%s\n", TAB_HOR, TAB_HOR, TAB_HOR, TAB_TR);
-
-    for(int k =0; k<cont;k++){
-
-        for(int i =0; i<cont+1; i++){
+    
+    //imprime o meio da tabela 
+    for(int k = 0; k < cont+1;k++){
+        
+        for(int i = 0; i < cont+1; i++){
+            
+            if(matriz[k][i].estado == ATIVA){
+                printf("%s%s %d %s", TAB_VER,ANSI_BG_COLOR_GREEN,  matriz[k][i].valor, ANSI_RESET);
+            }
+            else if(matirz[k][i].estado == REMOVIDA){
+                printf("%s%s %d %s", TAB_VER,ANSI_BG_COLOR_RED,  matriz[k][i].valor, ANSI_RESET);
+            }
+            //Vazia / estado inicial
+            else{
+                printf("%s %d ", TAB_VER, matriz[k][i].valor);
+            }
+            
             printf("%s %d ", TAB_VER, 3);
         }
         printf("%s %d\n", TAB_VER, 2); //ultimo e dica
-
+    }
 
         printf("%s", TAB_ML);
         for(int i = 0; i < cont; i++)
@@ -113,7 +133,8 @@ void imprimeTabela(char nivel){
     }
 
     for(int i =0; i<cont+1; i++){
-            printf("%s %d ", TAB_VER, 3);
+            
+            printf("%s %d ", TAB_VER, matriz[i][j]);
         }
     printf("%s %d\n", TAB_VER, 2); //ultimo e dica
 
@@ -184,6 +205,53 @@ void removerEspaco(char *comando){
 
 void copiaComando(char *comando, char *saida){
     for(int i = 0; comando[i] != ' '; i++)
-        saida[i] = comando[i];
+    saida[i] = comando[i];
 }
 
+Celula **alocaMatriz(int tam){
+    
+    Celula **jogo = malloc(sizeof(*Celula) *tam);
+    for(int i = 0; i < tam; i++)
+        jogo[i] = malloc(sizeof(Celula) * tam);
+    return jogo;
+    if(jogo == NULL){
+        printf(ANSI_COLOR_RED);
+        printf("\nNão foi possível alocar o tabuleiro, confira as entradas tente novamente");
+        printf(ANSI_RESET);
+    }
+    }
+void liberaMatriz(Celula **matriz, int tam){
+    for(int i = 0; i < tam; i++)
+        free(matriz[i]);
+    free(matriz);
+}
+int verificaComando(char *comando, int *x, int *y){
+    char acao[10];
+    int opcao;
+    int i;
+    
+    //copia o comando "adicionar", "remover" ou "sair"
+    for(i = 0; comando[i] != ' '; i++)
+        acao[i] = comando[i];
+    convertM(acao); //converte letras maiúsculas para minúsculas
+    
+    
+    int tam = strlen(comando);
+    if(tam == REMOVER){ 
+        if(strcmp(acao, "remover" && comando[i+2] == ' ') == 0)
+            opcao = 1;
+        }//->compara a entrada do usuário com espaços removidos do final e começo para saber se está no formato (comando lin col)
+    else if(tam == ADICIONAR)
+        if(strcmp(acao, "adicionar" && comando[i+2] == ' ') == 0)
+            opcao = 2;
+    else if(strcmp(acao, "voltar") == 0)
+        return 3;
+    else
+        return 0;
+
+    *x = comando[i+1] -= 48;
+    *y = comando[i+3] -= 48;
+
+    return opcao;
+
+}

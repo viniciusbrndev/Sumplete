@@ -7,14 +7,15 @@
 int main(){
     int menuInicial;
     char comando1[10];
-    Jogo **tabuleiro;
-    
+    Celula **tabuleiro;
+    int *DicaLin;
+    int *dicaCol;
     imprimirMenuInicial();
     while (1){
-        fgets(comando, sizeof(char) * 10, stdin);
-        removeN(comando);
-        convertM(comando);
-        menuInicial = verificarCmdMenu(comando);
+        fgets(comando1, sizeof(char) * 10, stdin);
+        removeN(comando1);
+        convertM(comando1);
+        menuInicial = verificarCmdMenu(comando1);
         if(menuInicial == 1){
             char nome[28];
             char nivel;
@@ -26,12 +27,25 @@ int main(){
             while(1){
                 char comando2[30];
                 char acao[10];
+                //impressão do tabuleiro
                 imprimeTabela(nivel);
                 printf("\n%s digite o comando: ", nome);
-                fgets(comando2, sizeof(comando2), stdin);
+                
+                fgets(comando2, sizeof(comando2), stdin);//Lê o comando do teclado e usa funções para formatar a entrada 
                 removerEspaco(comando2);
-                copiaComando(comando2, acao);
-                convertM(acao);
+                //posiçao removida ou adicionada
+                int x;
+                int y;
+
+                int acaoJogo = verificaComando(comando2, &x, &y); //funçao retorna um int com a acao desejada e a posição x,y.
+                    //REMOVER
+                    if(acaoJogo == 1){
+                        
+                    }
+                    //ADICIONAR
+                    else if(acaoJogo == 2){}
+                    //VOLTAR
+                    else if(acaoJogo == 3){}
                 
                 break;
             }
