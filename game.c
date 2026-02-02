@@ -60,14 +60,14 @@
 void imprimirMenuInicial(){
     printf("ANSI_COLOR_GREEN\n");
     printf("\n╔═════════════ MENU PRINCIPAL ════════════════╗\n");
-    printf("║                                               ║\n");
-    printf("║   [novo]     -> Iniciar um novo jogo          ║\n");
-    printf("║   [carregar] -> Carregar jogo salvo           ║\n");
-    printf("║   [exibir]   -> Exibir ranking                ║\n");
-    printf("║   [ajuda]    -> Mostrar comandos              ║\n");
-    printf("║   [sair]     -> Encerrar o jogo               ║\n");
-    printf("║                                               ║\n");
-    printf("╚═══════════════════════════════════════════════╝\n");
+    printf("║                                             ║\n");
+    printf("║   [novo]     -> Iniciar um novo jogo        ║\n");
+    printf("║   [carregar] -> Carregar jogo salvo         ║\n");
+    printf("║   [exibir]   -> Exibir ranking              ║\n");
+    printf("║   [ajuda]    -> Mostrar comandos            ║\n");
+    printf("║   [sair]     -> Encerrar o jogo             ║\n");
+    printf("║                                             ║\n");
+    printf("╚═════════════════════════════════════════════╝\n");
     printf(ANSI_RESET);
     printf("\nDIGITE UM COMANDO: ");
 
@@ -128,18 +128,19 @@ void imprimeTabela(char nivel){
         printf("%d   ", 2);
     }
     printf("\n");
+    printf("-> \"adicionar\"\n->\"remover\"\n->\"salvar\"\n->\"dica\"\n->\"sair\"\n");
 }
 //Função para converter a palavra para letras minúsculas   
 void convertM(char *palavra){
-    for(int i = 0; palavra[i] !=; i++)
+    for(int i = 0; palavra[i] != '\0'; i++)
         if(palavra[i] >= 65 && palavra[i] <= 90)
             palavra[i] += 32; 
 }
-//
+//remove o "\n" da string
 void removeN(char *palavra){
     for (int i = 0; palavra[i] != '\0'; i++)
         if (palavra[i] == '\n')
-            palavra[i] = '\0'
+            palavra[i] = '\0';
 }
 void limparBuffer(){
     char c;
@@ -147,17 +148,42 @@ void limparBuffer(){
 }
 
 int verificarCmdMenu(char *comando){
-    if(strcmp(comando,'novo') == 0)
+    if(strcmp(comando,"novo") == 0)
         return 1;
-    else if(strcmp(comando, 'carregar') == 0)
+    else if(strcmp(comando, "carregar") == 0)
         return 2;
-    else if(strcmp(comando, 'exibir') == 0)
+    else if(strcmp(comando, "exibir") == 0)
         return 3;
-    else if(strcmp(comando, 'ajuda') == 0)
+    else if(strcmp(comando, "ajuda") == 0)
         return 4;
     else if(strcmp(comando, "sair") == 0)
         return 5;
     else
         return 0; //comando incorreto ou inexistente
+}
+
+void removerEspaco(char *comando){
+    int tam = strlen(comando);
+    //puxa as letras após o último espaço para o começo da string
+    for(int i = 0; comando[i] == ' ' || comando[i] == '\t'; i++){
+        for(int j =0; j < tam; j++){
+            comando[j] = comando[j+1];
+        }
+        tam--;
+
+    }
+    int i;
+    for(i= tam -1; comando[i] == ' ' || comando[i] == '\t'; i--){
+
+    }
+    comando[i+1] = '\0';
+
+
+
+}
+
+void copiaComando(char *comando, char *saida){
+    for(int i = 0; comando[i] != ' '; i++)
+        saida[i] = comando[i];
 }
 

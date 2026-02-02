@@ -10,6 +10,8 @@
     void convertM(char *palavra);
     void removeN(char *palavra);
     void limparBuffer();
-    int verificarCmdMenu(char *comando)
+    int verificarCmdMenu(char *comando);
+    void removerEspaco(char *comando);
+    void copiaComando(char *comando, char *saida);
 
 #endif // GAME_H
