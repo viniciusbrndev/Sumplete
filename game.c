@@ -111,7 +111,7 @@ void imprimeTabela(char nivel, Celula **matriz){
             if(matriz[k][i].estado == ATIVA){
                 printf("%s%s %d %s", TAB_VER,ANSI_BG_COLOR_GREEN,  matriz[k][i].valor, ANSI_RESET);
             }
-            else if(matirz[k][i].estado == REMOVIDA){
+            else if(matriz[k][i].estado == REMOVIDA){
                 printf("%s%s %d %s", TAB_VER,ANSI_BG_COLOR_RED,  matriz[k][i].valor, ANSI_RESET);
             }
             //Vazia / estado inicial
@@ -130,12 +130,13 @@ void imprimeTabela(char nivel, Celula **matriz){
         printf("%s%s%s%s\n", TAB_HOR,TAB_HOR, TAB_HOR, TAB_MR);
 
         
-    }
+    
 
-    for(int i =0; i<cont+1; i++){
-            
-            printf("%s %d ", TAB_VER, matriz[i][j]);
+    for(int k = 0; k<cont+1; k++){
+        for(int i = 0; i<cont+1; i++){
+            printf("%s %d ", TAB_VER, matriz[k][i].valor);
         }
+    }
     printf("%s %d\n", TAB_VER, 2); //ultimo e dica
 
 
@@ -210,7 +211,7 @@ void copiaComando(char *comando, char *saida){
 
 Celula **alocaMatriz(int tam){
     
-    Celula **jogo = malloc(sizeof(*Celula) *tam);
+    Celula **jogo = malloc(sizeof(Celula*) *tam);
     for(int i = 0; i < tam; i++)
         jogo[i] = malloc(sizeof(Celula) * tam);
     return jogo;
@@ -226,32 +227,34 @@ void liberaMatriz(Celula **matriz, int tam){
     free(matriz);
 }
 int verificaComando(char *comando, int *x, int *y){
-    char acao[10];
-    int opcao;
+    char acao[11];
+    int opcao = 0;
     int i;
     
     //copia o comando "adicionar", "remover" ou "sair"
-    for(i = 0; comando[i] != ' '; i++)
+    for(i = 0; i < 10 && comando[i] != ' ' && comando[i] != '\0' && comando[i] != '\t'; i++)
         acao[i] = comando[i];
+    acao[i] = '\0';
     convertM(acao); //converte letras maiúsculas para minúsculas
     
     
     int tam = strlen(comando);
     if(tam == REMOVER){ 
-        if(strcmp(acao, "remover" && comando[i+2] == ' ') == 0)
+        if(strcmp(acao, "remover") == 0 && comando[i+2] == ' ')
             opcao = 1;
         }//->compara a entrada do usuário com espaços removidos do final e começo para saber se está no formato (comando lin col)
     else if(tam == ADICIONAR)
-        if(strcmp(acao, "adicionar" && comando[i+2] == ' ') == 0)
+        if(strcmp(acao, "adicionar") == 0 && comando[i+2] == ' ')
             opcao = 2;
     else if(strcmp(acao, "voltar") == 0)
         return 3;
-    else
-        return 0;
+    //verifica a formatação dos números e retorna as posições x e y ou 0 caso  ocomando seja inválido
+    if(comando[i+1] >= '0' && comando[i+1] <= '9' && comando[i+3] >= '0' && comando[i+3] <= '9'){
+        *x = comando[i+1] - 48;
+        *y = comando[i+3] - 48;
+        return opcao;
+    }
+    return 0;
 
-    *x = comando[i+1] -= 48;
-    *y = comando[i+3] -= 48;
-
-    return opcao;
 
 }
