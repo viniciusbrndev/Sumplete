@@ -7,7 +7,7 @@ int main(){
     int a = c;
     printf("%d", a);
     int x, y;
-    char comando[] = "remover 1 1";
+    char comando[13] = "remover 1 1";
     int res = verificaComando(comando, &x, &y);
     printf("%d", res);
     return 0;

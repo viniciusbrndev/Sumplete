@@ -15,5 +15,9 @@
     void copiaComando(char *comando, char *saida);
     Celula **alocaMatriz(int tam);
     void liberaMatriz(Celula **matriz, int tam);
-    int verificaComando(char *comando, int *x, int *y);
+    int verificaComando(const char *comando, int *x, int *y);
+    void adicionarPos(Celula **jogo, int lin, int col, int tam);
+    void removerPos(Celula **jogo, int lin, int col, int tam);
+    int verificaVitoria(const Celula **matriz,const int *sumLin,const int *sumCol, int tam);
+    void geraMatrizeDica(Celula **matriz1,int **matriz2,int *lin, int *col, const int tam);
 #endif // GAME_H

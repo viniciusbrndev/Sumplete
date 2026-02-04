@@ -11,6 +11,7 @@ int main(){
     int *DicaLin;
     int *dicaCol;
     imprimirMenuInicial();
+    srand(time(NULL));
     while (1){
         fgets(comando1, sizeof(char) * 10, stdin);
         removeN(comando1);
@@ -33,6 +34,7 @@ int main(){
                 
                 fgets(comando2, sizeof(comando2), stdin);//Lê o comando do teclado e usa funções para formatar a entrada 
                 removerEspaco(comando2);
+                removeN(comando2);
                 //posiçao removida ou adicionada
                 int x;
                 int y;
@@ -44,8 +46,10 @@ int main(){
                     }
                     //ADICIONAR
                     else if(acaoJogo == 2){}
-                    //VOLTAR
+                    //DICA
                     else if(acaoJogo == 3){}
+                    //VOLTAR
+                    else if(acaoJgo == 4)
                 
                 break;
             }

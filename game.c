@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <time.h>
 //constantes
 #define VAZIA 0
 #define ATIVA 1
@@ -79,7 +80,7 @@ void imprimirMenuInicial(){
 
 }
 
-void imprimeTabela(char nivel, Celula **matriz){
+void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
     int cont;
 
     if(nivel == 'F'){
@@ -109,19 +110,18 @@ void imprimeTabela(char nivel, Celula **matriz){
         for(int i = 0; i < cont+1; i++){
             
             if(matriz[k][i].estado == ATIVA){
-                printf("%s%s %d %s", TAB_VER,ANSI_BG_COLOR_GREEN,  matriz[k][i].valor, ANSI_RESET);
+                printf("%s%s %d %s ", TAB_VER,ANSI_BG_COLOR_GREEN,  matriz[k][i].valor, ANSI_RESET);
             }
             else if(matriz[k][i].estado == REMOVIDA){
-                printf("%s%s %d %s", TAB_VER,ANSI_BG_COLOR_RED,  matriz[k][i].valor, ANSI_RESET);
+                printf("%s%s %d %s ", TAB_VER,ANSI_BG_COLOR_RED,  matriz[k][i].valor, ANSI_RESET);
             }
             //Vazia / estado inicial
             else{
                 printf("%s %d ", TAB_VER, matriz[k][i].valor);
             }
             
-            printf("%s %d ", TAB_VER, 3);
         }
-        printf("%s %d\n", TAB_VER, 2); //ultimo e dica
+        printf("%s %d\n", TAB_VER, dicaLin[k]); //ultimo e dica
     }
 
         printf("%s", TAB_ML);
@@ -131,7 +131,7 @@ void imprimeTabela(char nivel, Celula **matriz){
 
         
     
-
+    /*
     for(int k = 0; k<cont+1; k++){
         for(int i = 0; i<cont+1; i++){
             printf("%s %d ", TAB_VER, matriz[k][i].valor);
@@ -144,10 +144,10 @@ void imprimeTabela(char nivel, Celula **matriz){
     for(int i = 0; i < cont; i++)
         printf("%s%s%s%s", TAB_HOR,TAB_HOR, TAB_HOR, TAB_BJ);
     printf("%s%s%s%s\n", TAB_HOR,TAB_HOR, TAB_HOR, TAB_BR);
-    
+    */
     printf("  ");
     for(int i =0; i<cont+1; i++){
-        printf("%d   ", 2);
+        printf("%d   ", dicaCol[i]);
     }
     printf("\n");
     printf("-> \"adicionar\"\n->\"remover\"\n->\"salvar\"\n->\"dica\"\n->\"sair\"\n");
@@ -226,35 +226,117 @@ void liberaMatriz(Celula **matriz, int tam){
         free(matriz[i]);
     free(matriz);
 }
-int verificaComando(char *comando, int *x, int *y){
-    char acao[11];
+int verificaComando(const char *comando, int *x, int *y){
+    char acao[11]; //10 letras + \0
+    int a,b; //posições a serem lidas
+    char lixo; //lixo que pode ser inserido pelo usuario "...1 1 abc"
     int opcao = 0;
-    int i;
-    
-    //copia o comando "adicionar", "remover" ou "sair"
-    for(i = 0; i < 10 && comando[i] != ' ' && comando[i] != '\0' && comando[i] != '\t'; i++)
-        acao[i] = comando[i];
-    acao[i] = '\0';
-    convertM(acao); //converte letras maiúsculas para minúsculas
-    
-    
-    int tam = strlen(comando);
-    if(tam == REMOVER){ 
-        if(strcmp(acao, "remover") == 0 && comando[i+2] == ' ')
-            opcao = 1;
-        }//->compara a entrada do usuário com espaços removidos do final e começo para saber se está no formato (comando lin col)
-    else if(tam == ADICIONAR)
-        if(strcmp(acao, "adicionar") == 0 && comando[i+2] == ' ')
-            opcao = 2;
-    else if(strcmp(acao, "voltar") == 0)
-        return 3;
-    //verifica a formatação dos números e retorna as posições x e y ou 0 caso  ocomando seja inválido
-    if(comando[i+1] >= '0' && comando[i+1] <= '9' && comando[i+3] >= '0' && comando[i+3] <= '9'){
-        *x = comando[i+1] - 48;
-        *y = comando[i+3] - 48;
-        return opcao;
+    //sscanf() lê de uma string e retorna a quantidade de membros encontrados
+    int n = sscanf(comando," %10s %d %d %c", acao, &a, &b, &lixo);
+    convertM(acao);
+    /*
+    Se n > 3 o usuário digitou uma entrada inválida = ERRO 
+    Se n = 1 entra na verificação se é voltar ou dica, se o teste falhar a  função retorna erro por padrão
+    Se n = !3 O usuário não digitou as posições Lin x Col da matriz retorna erro por padrão 
+    */
+    if(n == 1){ 
+        if(strcmp(acao, "voltar") == 0)
+            return 4;
+        else if(strcmp(acao, "dica") == 0)
+            return 3;
+        else
+            return 0;
     }
-    return 0;
+    else if(n != 3)
+        return 0; //código de erro, comando inválido ou o usuário digitou o cmd sem a posição desejada
+    else if(n == 3){
+        if(strcmp(acao, "adicionar") == 0)
+            opcao = 2;
+        else if(strcmp(acao, "remover") == 0)
+            opcao = 1;
+        else
+            return 0;
+    }
+    //verifica se o número é válido, ou seja se é menor que o tamaho do maior tabuleiro 
+    if( a < 0 || a >= 7 || b < 0 || b >= 7)
+        return 0;
+    *x = a;
+    *y = b;
+    
+    
+    return opcao;
 
+}
+
+void adicionarPos(Celula **jogo, int lin, int col, int tam){
+    if(lin > tam || col > tam)
+        return;
+    if(jogo[lin][col].estado == 1)
+        jogo[lin][col].estado = 0; //se já estiver "verde" volta para o estado inicial 0
+    else
+        jogo[lin][col].estado = 1;
+}
+void removerPos(Celula **jogo, int lin, int col, int tam){
+    if(lin > tam || col > tam)
+        return;
+    if(jogo[lin][col].estado == 2)
+        jogo[lin][col].estado = 0; //se já estiver "vermelho" volta para o estado inicial 0
+    else
+        jogo[lin][col].estado = 2;
+}
+int verificaVitoria(const Celula **matriz,const int *sumLin,const int *sumCol, int tam){
+
+    int somaLinha, somaColuna, cont =0;
+    for(int i = 0; i < tam; i++){
+        somaLinha = 0;
+        for(int j = 0; j < tam; j++)
+            somaLinha += matriz[i][j].valor;
+        
+        if(somaLinha == sumLin[i])
+            cont++;
+    }
+    for(int j = 0; j < tam; j++){
+        somaColuna = 0;
+        for(int i = 0; i < tam; i++)
+            somaColuna += matriz[i][j].valor;
+
+        if(somaColuna = sumCol[j])
+            cont++;
+    }
+    if(cont == tam * 2)
+        return 1; //retorna 1 se o jogador venceu
+    else
+        return 0; // e 0 se a soma das linhas e colunas ainda não estão corretas
+}
+void geraMatrizeDica(Celula **matriz1,int **matriz2,int *lin, int *col, const int tam){
+    int somaLin, somaCol;
+    //completa o tabuleiro com valores aleatórios de 1 a 9
+    for(int i = 0; i < tam; i++){
+        for(int j = 0; i < tam; j++)
+            matriz1[i][j].valor = (rand() % 10) +1;
+        }
+// gera as posições removidas do tabuleiro com 1 para soma e 0 removido da soma
+        for(int i = 0; i < tam; i++){
+        for(int j = 0; j < tam; j++)
+        matriz2[i][j] = rand() % 2;
+    }
+    //gera as dicas das linhas 
+    for(int i = 0; i < tam; i++){
+        somaLin = 0;
+        for(int j = 0; j < tam; j++){
+            if(matriz2[i][j] == 1)
+                somaLin += matriz1[i][j].valor;
+        }
+        lin[i] = somaLin;
+    }
+    //gera as dicas das colunas
+    for(int j = 0; j < tam; j++){
+        somaCol = 0;
+        for(int i = 0; i < tam; i++){
+            if(matriz2[i][j] == 1)
+                somaCol += matriz1[i][j].valor;
+        }
+        col[j] = somaCol;
+    }
 
 }
