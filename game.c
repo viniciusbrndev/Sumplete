@@ -83,66 +83,68 @@ void imprimirMenuInicial(){
 void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
     int cont;
 
-    if(nivel == 'F'){
-        cont = 2;
-    }
-    else if(nivel=='M'){
-        cont = 4;
-    }
-    else if(nivel == 'D'){
-        cont = 6;
-    
-    }
+    if(nivel == 'F') cont = 2;
+    else if(nivel=='M') cont = 4;
+    else if(nivel == 'D') cont = 6;
     else{
-        printf("Dificuldade inválida");
+        printf("Dificuldade inválida\n");
         return;
     }
-    //imprime o topa da tabela 
+
+    int n = cont + 1; // tamanho real (valores 1..9)
+
+    // -------- TOPO --------
     printf("%s", TAB_TL);
-    for(int i = 0; i < cont; i++){
-        printf("%s%s%s%s", TAB_HOR,TAB_HOR,TAB_HOR, TAB_TJ);   
+    for(int i = 0; i < n-1; i++){
+        printf("%s%s%s%s", TAB_HOR, TAB_HOR, TAB_HOR, TAB_TJ);
     }
     printf("%s%s%s%s\n", TAB_HOR, TAB_HOR, TAB_HOR, TAB_TR);
-    
-    //imprime o corpo ou células da tabela
-    for(int k = 0; k < cont+1;k++){
-        
-        for(int i = 0; i < cont+1; i++){
-            //conteúdo da tabela
+
+    // -------- CORPO --------
+    for(int k = 0; k < n; k++){
+
+        for(int i = 0; i < n; i++){
+            int v = matriz[k][i].valor;
+
             if(matriz[k][i].estado == ATIVA){
-                printf("%s%s %d %s ", TAB_VER,ANSI_BG_COLOR_GREEN,  matriz[k][i].valor, ANSI_RESET);
+                printf("%s%s %d %s", TAB_VER, ANSI_BG_COLOR_GREEN, v, ANSI_RESET);
             }
             else if(matriz[k][i].estado == REMOVIDA){
-                printf("%s%s %d %s ", TAB_VER,ANSI_BG_COLOR_RED,  matriz[k][i].valor, ANSI_RESET);
+                printf("%s%s %d %s", TAB_VER, ANSI_BG_COLOR_RED, v, ANSI_RESET);
             }
-            //Vazia -> estado inicial
             else{
-                printf("%s %d ", TAB_VER, matriz[k][i].valor);
+                printf("%s %d ", TAB_VER, v);
             }
-            
         }
-        printf("%s %d\n", TAB_VER, dicaLin[k]); //ultimo e dica
+
+        // dica da linha no final
+        printf("%s %d\n", TAB_VER, dicaLin[k]);
+
+        // -------- LINHA DO MEIO (ENTRE LINHAS) --------
+        if(k < n-1){
+            printf("%s", TAB_ML);
+            for(int i = 0; i < n-1; i++){
+                printf("%s%s%s%s", TAB_HOR, TAB_HOR, TAB_HOR, TAB_MJ);
+            }
+            printf("%s%s%s%s\n", TAB_HOR, TAB_HOR, TAB_HOR, TAB_MR);
+        }
     }
 
-        printf("%s", TAB_ML);
-        for(int i = 0; i < cont; i++)
-            printf("%s%s%s%s", TAB_HOR,TAB_HOR, TAB_HOR, TAB_MJ);
-        printf("%s%s%s%s\n", TAB_HOR,TAB_HOR, TAB_HOR, TAB_MR);
-
-        
-    
-    //borda inferior
+    // -------- BORDA INFERIOR --------
     printf("%s", TAB_BL);
-    for(int i = 0; i < cont; i++)
-        printf("%s%s%s%s", TAB_HOR,TAB_HOR, TAB_HOR, TAB_BJ);
-    printf("%s%s%s%s\n", TAB_HOR,TAB_HOR, TAB_HOR, TAB_BR);
-    //imprime as dicas das colunas
+    for(int i = 0; i < n-1; i++){
+        printf("%s%s%s%s", TAB_HOR, TAB_HOR, TAB_HOR, TAB_BJ);
+    }
+    printf("%s%s%s%s\n", TAB_HOR, TAB_HOR, TAB_HOR, TAB_BR);
+
+    // -------- DICAS DAS COLUNAS --------
     printf("  ");
-    for(int i =0; i<cont+1; i++){
-        printf("%d   ", dicaCol[i]);
+    for(int i = 0; i < n; i++){
+        printf("%d   ", dicaCol[i]); // 1 dígito + 3 espaços fica ok
     }
     printf("\n");
-    printf("-> \"adicionar\"\n->\"remover\"\n->\"resolver\"\n->\"dica\"\n->\"sair\"\n");
+
+    printf("-> \"adicionar\"\n-> \"remover\"\n-> \"resolver\"\n-> \"dica\"\n-> \"sair\"\n");
 }
 //Função para converter a palavra para letras minúsculas   
 void convertM(char *palavra){
@@ -201,30 +203,60 @@ void copiaComando(char *comando, char *saida){
     saida[i] = comando[i];
 }
 
-Celula **alocaMatriz(int tam){
+Celula **alocaTabuleiro(int tam){
     
     Celula **jogo = malloc(sizeof(Celula*) *tam);
-    for(int i = 0; i < tam; i++)
+    if(jogo == NULL)
+        return NULL;
+    for(int i = 0; i < tam; i++){
         jogo[i] = malloc(sizeof(Celula) * tam);
-    return jogo;
-    if(jogo == NULL){
-        printf(ANSI_COLOR_RED);
-        printf("\nNão foi possível alocar o tabuleiro, confira as entradas tente novamente");
-        printf(ANSI_RESET);
+        //se ocorrer um erro, libera as posições alocadas antes
+        if(jogo[i] == NULL){
+            for(int k = 0; k < i; k++){
+                free(jogo[k]);
+                free(jogo);
+            }
+            printf(ANSI_COLOR_RED);
+            printf("\nNão foi possível alocar o tabuleiro, confira as entradas tente novamente");
+            printf(ANSI_RESET);
+            return NULL;
+        }
     }
+        return jogo;
     }
-void liberaMatriz(Celula **matriz, int tam){
+int **alocaMatriz(int tam){
+    int **matriz = (int**)malloc(tam *sizeof(int*));
+    for(int i = 0; i < tam; i++){
+        matriz[i] = (int*)malloc(sizeof(int) * tam);
+    }
+    return matriz;
+}
+int *alocaVetor(int tam){
+    int * vetor = malloc(sizeof(int) * tam);
+    return vetor;
+}
+void liberaTabuleiro(Celula **matriz, int tam){
     for(int i = 0; i < tam; i++)
         free(matriz[i]);
     free(matriz);
 }
-int verificaComando(const char *comando, int *x, int *y){
+void liberaMatriz(int **matriz, int tam){
+    for(int i = 0; i < tam; i++)
+        free(matriz[i]);
+    free(matriz);
+}
+int verificaComando(int *x, int *y){
+    char comando2[30];
     char acao[11]; //10 letras + \0
     int a,b; //posições a serem lidas
     char lixo; //lixo que pode ser inserido pelo usuario "...1 1 abc"
     int opcao = 0;
+    //Lê o comando do teclado e usa funções para formatar a entrada 
+    fgets(comando2, sizeof(comando2), stdin);
+    removerEspaco(comando2);
+    removeN(comando2);
     //sscanf() lê de uma string e retorna a quantidade de membros encontrados
-    int n = sscanf(comando," %10s %d %d %c", acao, &a, &b, &lixo);
+    int n = sscanf(comando2," %10s %d %d %c", acao, &a, &b, &lixo);
     convertM(acao);
     /*
     Se n > 3 o usuário digitou uma entrada inválida = ERRO 
@@ -281,16 +313,18 @@ int verificaVitoria(const Celula **matriz,const int *sumLin,const int *sumCol, i
     int somaLinha, somaColuna, cont =0;
     for(int i = 0; i < tam; i++){
         somaLinha = 0;
-        for(int j = 0; j < tam; j++)
-            somaLinha += matriz[i][j].valor;
-        
+        for(int j = 0; j < tam; j++){
+            if(matriz[i][j].estado != REMOVIDA)
+                somaLinha += matriz[i][j].valor;
+        }
         if(somaLinha == sumLin[i])
             cont++;
     }
     for(int j = 0; j < tam; j++){
         somaColuna = 0;
         for(int i = 0; i < tam; i++)
-            somaColuna += matriz[i][j].valor;
+            if(matriz[i][j].estado != REMOVIDA)
+                somaColuna += matriz[i][j].valor;
 
         if(somaColuna = sumCol[j])
             cont++;
@@ -301,16 +335,19 @@ int verificaVitoria(const Celula **matriz,const int *sumLin,const int *sumCol, i
         return 0; // e 0 se a soma das linhas e colunas ainda não estão corretas
 }
 void geraMatrizeDica(Celula **matriz1,int **matriz2,int *lin, int *col, const int tam){
+
     int somaLin, somaCol;
     //completa o tabuleiro com valores aleatórios de 1 a 9
     for(int i = 0; i < tam; i++){
-        for(int j = 0; i < tam; j++)
+        for(int j = 0; j < tam; j++){
             matriz1[i][j].valor = (rand() % 10) +1;
+            matriz1[i][j].estado = 0;
+        }
         }
 // gera as posições removidas do tabuleiro com 1 para soma e 0 removido da soma
-        for(int i = 0; i < tam; i++){
+    for(int i = 0; i < tam; i++){
         for(int j = 0; j < tam; j++)
-        matriz2[i][j] = rand() % 2;
+            matriz2[i][j] = rand() % 2;
     }
     //gera as dicas das linhas 
     for(int i = 0; i < tam; i++){

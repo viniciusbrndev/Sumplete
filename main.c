@@ -8,8 +8,10 @@ int main(){
     int menuInicial;
     char comando1[10];
     Celula **tabuleiro;
-    int *DicaLin;
+    int **posRemovidas;
+    int *dicaLin;
     int *dicaCol;
+
     imprimirMenuInicial();
     srand(time(NULL));
     while (1){
@@ -25,21 +27,36 @@ int main(){
             fgets(nome, sizeof(char) * 28,stdin);
             printf("Digite o nivel de dificuldade: ");
             nivel = getchar();
+            limparBuffer();
+            int tamMatriz;
+            if(nivel == 'F')
+                tamMatriz = 3;
+            else if(nivel == 'M')
+                tamMatriz = 5;
+            else if(nivel == 'D')
+                tamMatriz = 7;
+            else{
+                printf("\nDificuldade inválida!!");
+                continue;
+            }
+            //aloca o tabuleiro e os vetores dicaLin e dicaCol
+            tabuleiro = alocaTabuleiro(tamMatriz);
+            posRemovidas = alocaMatriz(tamMatriz);
+            dicaLin = alocaVetor(tamMatriz);
+            dicaCol = alocaVetor(tamMatriz);
+            //--------------GERAR TABULEIRO-----------------
+            geraMatrizeDica(tabuleiro, posRemovidas, dicaLin, dicaCol, tamMatriz);
+
             while(1){
-                char comando2[30];
-                char acao[10];
-                //impressão do tabuleiro
-                imprimeTabela(nivel);
-                printf("\n%s digite o comando: ", nome);
-                
-                fgets(comando2, sizeof(comando2), stdin);//Lê o comando do teclado e usa funções para formatar a entrada 
-                removerEspaco(comando2);
-                removeN(comando2);
                 //posiçao removida ou adicionada
                 int x;
                 int y;
+                //impressão do tabuleiro
+                imprimeTabela(nivel, tabuleiro, dicaLin, dicaCol);
+                printf("\n%s digite o comando: ", nome);
+                //funçao retorna um int com a acao desejada e a posição x,y.
+                int acaoJogo = verificaComando(&x, &y); 
 
-                int acaoJogo = verificaComando(comando2, &x, &y); //funçao retorna um int com a acao desejada e a posição x,y.
                     //REMOVER
                     if(acaoJogo == 1){
                         
@@ -49,8 +66,16 @@ int main(){
                     //DICA
                     else if(acaoJogo == 3){}
                     //VOLTAR
-                    else if(acaoJgo == 4)
-                
+                    else if(acaoJogo == 4){}
+                    int venceu = verificaVitoria(tabuleiro, dicaLin, dicaCol,tamMatriz);
+                    if(venceu){
+                        //mostra as posições corretas em verde e as outras em vermelho e acaba
+                        break;
+                    }
+                free(dicaCol);
+                free(dicaLin);
+                liberaMatriz(posRemovidas, tamMatriz);
+                liberaTabuleiro(tabuleiro, tamMatriz);
                 break;
             }
             
