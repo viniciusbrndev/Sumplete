@@ -97,25 +97,25 @@ void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
         printf("Dificuldade inválida");
         return;
     }
-
+    //imprime o topa da tabela 
     printf("%s", TAB_TL);
     for(int i = 0; i < cont; i++){
-        printf("%s%s%s%s", TAB_HOR,TAB_HOR,TAB_HOR, TAB_TJ);   //imprime a parte de cima
+        printf("%s%s%s%s", TAB_HOR,TAB_HOR,TAB_HOR, TAB_TJ);   
     }
     printf("%s%s%s%s\n", TAB_HOR, TAB_HOR, TAB_HOR, TAB_TR);
     
-    //imprime o meio da tabela 
+    //imprime o corpo ou células da tabela
     for(int k = 0; k < cont+1;k++){
         
         for(int i = 0; i < cont+1; i++){
-            
+            //conteúdo da tabela
             if(matriz[k][i].estado == ATIVA){
                 printf("%s%s %d %s ", TAB_VER,ANSI_BG_COLOR_GREEN,  matriz[k][i].valor, ANSI_RESET);
             }
             else if(matriz[k][i].estado == REMOVIDA){
                 printf("%s%s %d %s ", TAB_VER,ANSI_BG_COLOR_RED,  matriz[k][i].valor, ANSI_RESET);
             }
-            //Vazia / estado inicial
+            //Vazia -> estado inicial
             else{
                 printf("%s %d ", TAB_VER, matriz[k][i].valor);
             }
@@ -131,26 +131,18 @@ void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
 
         
     
-    /*
-    for(int k = 0; k<cont+1; k++){
-        for(int i = 0; i<cont+1; i++){
-            printf("%s %d ", TAB_VER, matriz[k][i].valor);
-        }
-    }
-    printf("%s %d\n", TAB_VER, 2); //ultimo e dica
-
-
+    //borda inferior
     printf("%s", TAB_BL);
     for(int i = 0; i < cont; i++)
         printf("%s%s%s%s", TAB_HOR,TAB_HOR, TAB_HOR, TAB_BJ);
     printf("%s%s%s%s\n", TAB_HOR,TAB_HOR, TAB_HOR, TAB_BR);
-    */
+    //imprime as dicas das colunas
     printf("  ");
     for(int i =0; i<cont+1; i++){
         printf("%d   ", dicaCol[i]);
     }
     printf("\n");
-    printf("-> \"adicionar\"\n->\"remover\"\n->\"salvar\"\n->\"dica\"\n->\"sair\"\n");
+    printf("-> \"adicionar\"\n->\"remover\"\n->\"resolver\"\n->\"dica\"\n->\"sair\"\n");
 }
 //Função para converter a palavra para letras minúsculas   
 void convertM(char *palavra){
