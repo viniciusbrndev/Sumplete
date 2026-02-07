@@ -42,6 +42,7 @@
 #define ANSI_BG_COLOR_MAGENTA "\x1b[45m"
 #define ANSI_BG_COLOR_CYAN "\x1b[46m"
 #define ANSI_BG_COLOR_WHITE "\x1b[47m"
+#define ANSI_COLOR_GRAY  "\x1b[90m"
 // macros para facilitar o uso
 #define NEGRITO(string) ANSI_NEGRITO string ANSI_RESET
 #define BLACK(string) ANSI_COLOR_BLACK string ANSI_RESET
@@ -53,6 +54,7 @@
 #define MAGENTA(string) ANSI_COLOR_MAGENTA string ANSI_RESET
 #define CYAN(string) ANSI_COLOR_CYAN string ANSI_RESET
 #define WHITE(string) ANSI_COLOR_WHITE string ANSI_RESET
+#define GRAY(string) ANSI_COLOR_GRAY string ANSI_COLOR_RESET
 #define BG_BLACK(string) ANSI_BG_COLOR_BLACK string ANSI_RESET
 #define BG_BLUE(string) ANSI_BG_COLOR_BLUE string ANSI_RESET
 #define BG_RED(string) ANSI_BG_COLOR_RED string ANSI_RESET
@@ -77,6 +79,23 @@ void imprimirMenuInicial(){
     printf("╚═════════════════════════════════════════════╝\n");
     printf(ANSI_RESET);
     printf("\nDIGITE UM COMANDO: ");
+
+}
+int somaLinReal(Celula **matriz, int tamMatriz, int poslin){
+    int soma = 0;
+    for(int i = 0; i < tamMatriz; i++){
+        if(matriz[poslin][i].estado != REMOVIDA)
+            soma += matriz[poslin][i].valor;
+    }
+    return soma;
+}
+int somaColReal(Celula **matriz, int tamMatriz, int poscol){
+    int soma = 0;
+    for(int i = 0; i < tamMatriz; i++){
+        if(matriz[i][poscol].estado != REMOVIDA)
+            soma += matriz[i][poscol].valor;
+    }
+    return soma;
 
 }
 
@@ -118,7 +137,13 @@ void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
         }
 
         // dica da linha no final
-        printf("%s %d\n", TAB_VER, dicaLin[k]);
+        int somaliReal = somaLinReal(matriz, n, k); 
+        if(somaliReal == dicaLin[k]){
+            printf("%s %d\n", TAB_VER, dicaLin[k]);
+        }
+        else{
+            printf("%s%s %d%s\n", TAB_VER,GRAY , dicaLin[k], ANSI_RESET);
+        }
 
         // -------- LINHA DO MEIO (ENTRE LINHAS) --------
         if(k < n-1){
@@ -139,9 +164,15 @@ void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
 
     // -------- DICAS DAS COLUNAS --------
     printf("  ");
+    
     for(int i = 0; i < n; i++){
-        printf("%d   ", dicaCol[i]); // 1 dígito + 3 espaços fica ok
+        int somaclReal = somaColReal(matriz,n, i);
+        if(somaclReal == dicaCol[i])
+            printf("%2d  ", dicaCol[i]);
+        else
+            printf("%s%2d  %s", GRAY,dicaCol[i], ANSI_RESET);
     }
+
     printf("\n");
 
     printf("-> \"adicionar\"\n-> \"remover\"\n-> \"resolver\"\n-> \"dica\"\n-> \"sair\"\n");
@@ -264,7 +295,9 @@ int verificaComando(int *x, int *y){
     Se n = !3 O usuário não digitou as posições Lin x Col da matriz retorna erro por padrão 
     */
     if(n == 1){ 
-        if(strcmp(acao, "voltar") == 0)
+        if(strcmp(acao, "resolver") == 0)
+            return 5;
+        else if(strcmp(acao, "voltar") == 0)
             return 4;
         else if(strcmp(acao, "dica") == 0)
             return 3;
@@ -308,9 +341,9 @@ void removerPos(Celula **jogo, int lin, int col, int tam){
     else
         jogo[lin][col].estado = 2;
 }
-int verificaVitoria(const Celula **matriz,const int *sumLin,const int *sumCol, int tam){
+int verificaVitoria(Celula **matriz,const int *sumLin,const int *sumCol, int tam){
 
-    int somaLinha, somaColuna, cont =0;
+    int somaLinha, somaColuna, cont = 0;
     for(int i = 0; i < tam; i++){
         somaLinha = 0;
         for(int j = 0; j < tam; j++){
@@ -326,7 +359,7 @@ int verificaVitoria(const Celula **matriz,const int *sumLin,const int *sumCol, i
             if(matriz[i][j].estado != REMOVIDA)
                 somaColuna += matriz[i][j].valor;
 
-        if(somaColuna = sumCol[j])
+        if(somaColuna == sumCol[j])
             cont++;
     }
     if(cont == tam * 2)
@@ -340,7 +373,7 @@ void geraMatrizeDica(Celula **matriz1,int **matriz2,int *lin, int *col, const in
     //completa o tabuleiro com valores aleatórios de 1 a 9
     for(int i = 0; i < tam; i++){
         for(int j = 0; j < tam; j++){
-            matriz1[i][j].valor = (rand() % 10) +1;
+            matriz1[i][j].valor = (rand() % 9) +1;
             matriz1[i][j].estado = 0;
         }
         }

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "game.h"
+#include <time.h>
 //#include "ranking.h"
 
 
@@ -59,19 +60,23 @@ int main(){
 
                     //REMOVER
                     if(acaoJogo == 1){
-                        
+                        removerPos(tabuleiro, x, y, tamMatriz);
                     }
                     //ADICIONAR
-                    else if(acaoJogo == 2){}
+                    else if(acaoJogo == 2){
+                        adicionarPos(tabuleiro, x, y, tamMatriz);
+                    }
                     //DICA
                     else if(acaoJogo == 3){}
                     //VOLTAR
                     else if(acaoJogo == 4){}
+                    //RESOLVER
+                    else if(acaoJogo == 5){}
                     int venceu = verificaVitoria(tabuleiro, dicaLin, dicaCol,tamMatriz);
-                    if(venceu){
+                    /*if(venceu){
                         //mostra as posições corretas em verde e as outras em vermelho e acaba
                         break;
-                    }
+                    }*/
                 free(dicaCol);
                 free(dicaLin);
                 liberaMatriz(posRemovidas, tamMatriz);
@@ -83,6 +88,7 @@ int main(){
 
             
         }
+    break;
     }
     
 

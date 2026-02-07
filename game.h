@@ -6,6 +6,8 @@
         int estado;
     }Celula;
     void imprimirMenuInicial();
+    int somaLinReal(Celula **matriz, int tamMatriz, int poslin);
+    int somaColReal(Celula **matriz, int tamMatriz, int poscol);
     void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol);
     void convertM(char *palavra);
     void removeN(char *palavra);
@@ -20,9 +22,9 @@
     void liberaTabuleiro(Celula **matriz, int tam);
     void liberaMatriz(int **matriz, int tam);
     //--------------------------------------------
-    int verificaComando(const char *comando, int *x, int *y);
+    int verificaComando(int *x, int *y);
     void adicionarPos(Celula **jogo, int lin, int col, int tam);
     void removerPos(Celula **jogo, int lin, int col, int tam);
-    int verificaVitoria(const Celula **matriz,const int *sumLin,const int *sumCol, int tam);
+    int verificaVitoria(Celula **matriz,const int *sumLin,const int *sumCol, int tam);
     void geraMatrizeDica(Celula **matriz1,int **matriz2,int *lin, int *col, const int tam);
 #endif // GAME_H
