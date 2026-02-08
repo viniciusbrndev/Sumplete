@@ -27,4 +27,5 @@
     void removerPos(Celula **jogo, int lin, int col, int tam);
     int verificaVitoria(Celula **matriz,const int *sumLin,const int *sumCol, int tam);
     void geraMatrizeDica(Celula **matriz1,int **matriz2,int *lin, int *col, const int tam);
+    void mostrarDica(Celula **tabuleiro, int **mask,int tamMatriz);
 #endif // GAME_H

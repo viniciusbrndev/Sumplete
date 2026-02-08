@@ -142,7 +142,7 @@ void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
             printf("%s %d\n", TAB_VER, dicaLin[k]);
         }
         else{
-            printf("%s%s %d%s\n", TAB_VER,GRAY , dicaLin[k], ANSI_RESET);
+            printf("%s%s %d%s\n", TAB_VER, ANSI_COLOR_GRAY, dicaLin[k], ANSI_RESET);
         }
 
         // -------- LINHA DO MEIO (ENTRE LINHAS) --------
@@ -170,7 +170,7 @@ void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
         if(somaclReal == dicaCol[i])
             printf("%2d  ", dicaCol[i]);
         else
-            printf("%s%2d  %s", GRAY,dicaCol[i], ANSI_RESET);
+            printf("%s%2d  %s", ANSI_COLOR_GRAY,dicaCol[i], ANSI_RESET);
     }
 
     printf("\n");
@@ -399,6 +399,22 @@ void geraMatrizeDica(Celula **matriz1,int **matriz2,int *lin, int *col, const in
                 somaCol += matriz1[i][j].valor;
         }
         col[j] = somaCol;
+    }
+
+}
+//procura a primeira posição que deve ser removida na máscara e compara se o estado é diferete de REMOVIDO se for remova a posição no tabuleiro
+void mostrarDica(Celula **tabuleiro, int **mask,int tamMatriz){
+    int c = 0;
+    for(int i = 0; i < tamMatriz; i++){
+        for(int j = 0; j < tamMatriz; j++){
+            if(mask[i][j] == 0 && tabuleiro[i][j].estado != REMOVIDA){
+                tabuleiro[i][j].estado = 2;
+                c = 1;
+                break;
+            }
+        }
+        if(c)
+            break;
     }
 
 }

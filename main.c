@@ -30,11 +30,11 @@ int main(){
             nivel = getchar();
             limparBuffer();
             int tamMatriz;
-            if(nivel == 'F')
+            if(nivel == 'F' || nivel == 'f')
                 tamMatriz = 3;
-            else if(nivel == 'M')
+            else if(nivel == 'M' || nivel == 'm')
                 tamMatriz = 5;
-            else if(nivel == 'D')
+            else if(nivel == 'D' || nivel == 'd')
                 tamMatriz = 7;
             else{
                 printf("\nDificuldade inválida!!");
@@ -67,9 +67,13 @@ int main(){
                         adicionarPos(tabuleiro, x, y, tamMatriz);
                     }
                     //DICA
-                    else if(acaoJogo == 3){}
+                    else if(acaoJogo == 3){
+                        mostrarDica(tabuleiro, posRemovidas, tamMatriz);
+                    }
                     //VOLTAR
-                    else if(acaoJogo == 4){}
+                    else if(acaoJogo == 4){
+                        break;
+                    }
                     //RESOLVER
                     else if(acaoJogo == 5){}
                     int venceu = verificaVitoria(tabuleiro, dicaLin, dicaCol,tamMatriz);
@@ -77,16 +81,16 @@ int main(){
                         //mostra as posições corretas em verde e as outras em vermelho e acaba
                         break;
                     }*/
+                
+            }
+            
+
+
                 free(dicaCol);
                 free(dicaLin);
                 liberaMatriz(posRemovidas, tamMatriz);
                 liberaTabuleiro(tabuleiro, tamMatriz);
                 break;
-            }
-            
-
-
-            
         }
     break;
     }
