@@ -7,7 +7,7 @@
 
 int main(){
     int menuInicial;
-    char comando1[10];
+    char nomeArq[10];
     Celula **tabuleiro;
     int **posRemovidas;
     int *dicaLin;
@@ -16,10 +16,8 @@ int main(){
     imprimirMenuInicial();
     srand(time(NULL));
     while (1){
-        fgets(comando1, sizeof(char) * 10, stdin);
-        removeN(comando1);
-        convertM(comando1);
-        menuInicial = verificarCmdMenu(comando1);
+        
+        menuInicial = verificarCmdMenu(nomeArq);
         if(menuInicial == 1){
             char nome[28];
             char nivel;
@@ -75,7 +73,12 @@ int main(){
                         break;
                     }
                     //RESOLVER
-                    else if(acaoJogo == 5){}
+                    else if(acaoJogo == 5){
+                        resolverJogo(tabuleiro, posRemovidas, tamMatriz);
+                    }
+                    else{
+                        printf("%sCOMANDO INVÁLIDO!!%s", ANSI_COLOR_RED, ANSI_RESET);
+                    }
                     int venceu = verificaVitoria(tabuleiro, dicaLin, dicaCol,tamMatriz);
                     /*if(venceu){
                         //mostra as posições corretas em verde e as outras em vermelho e acaba
@@ -92,6 +95,11 @@ int main(){
                 liberaTabuleiro(tabuleiro, tamMatriz);
                 break;
         }
+        else if(menuInicial == 2){}
+        else if(menuInicial == 3){}
+        else if(menuInicial == 4){}
+        else if(menuInicial == 5){}
+        else if(menuInicial == 6){}
     break;
     }
     

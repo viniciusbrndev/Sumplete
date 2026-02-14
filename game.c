@@ -67,17 +67,18 @@
 
 
 void imprimirMenuInicial(){
-    printf("ANSI_COLOR_GREEN\n");
+    printf("%s\n", ANSI_BG_COLOR_GREEN);
     printf("\n╔═════════════ MENU PRINCIPAL ════════════════╗\n");
     printf("║                                             ║\n");
     printf("║   [novo]     -> Iniciar um novo jogo        ║\n");
     printf("║   [carregar] -> Carregar jogo salvo         ║\n");
     printf("║   [exibir]   -> Exibir ranking              ║\n");
     printf("║   [ajuda]    -> Mostrar comandos            ║\n");
+    printf("║   [salvar]   -> Salva o jogo atual          ║\n");
     printf("║   [sair]     -> Encerrar o jogo             ║\n");
     printf("║                                             ║\n");
     printf("╚═════════════════════════════════════════════╝\n");
-    printf(ANSI_RESET);
+    printf("%s", ANSI_RESET);
     printf("\nDIGITE UM COMANDO: ");
 
 }
@@ -102,9 +103,9 @@ int somaColReal(Celula **matriz, int tamMatriz, int poscol){
 void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
     int cont;
 
-    if(nivel == 'F') cont = 2;
-    else if(nivel=='M') cont = 4;
-    else if(nivel == 'D') cont = 6;
+    if(nivel == 'F' || nivel == 'f') cont = 2;
+    else if(nivel=='M' || nivel == 'm') cont = 4;
+    else if(nivel == 'D' || nivel == 'd') cont = 6;
     else{
         printf("Dificuldade inválida\n");
         return;
@@ -139,7 +140,7 @@ void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
         // dica da linha no final
         int somaliReal = somaLinReal(matriz, n, k); 
         if(somaliReal == dicaLin[k]){
-            printf("%s %d\n", TAB_VER, dicaLin[k]);
+            printf("%s%s %d%s\n", TAB_VER, ANSI_COLOR_GREEN, dicaLin[k], ANSI_RESET);
         }
         else{
             printf("%s%s %d%s\n", TAB_VER, ANSI_COLOR_GRAY, dicaLin[k], ANSI_RESET);
@@ -168,7 +169,7 @@ void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
     for(int i = 0; i < n; i++){
         int somaclReal = somaColReal(matriz,n, i);
         if(somaclReal == dicaCol[i])
-            printf("%2d  ", dicaCol[i]);
+            printf("%s%2d%s  ",ANSI_COLOR_GREEN, dicaCol[i], ANSI_RESET);
         else
             printf("%s%2d  %s", ANSI_COLOR_GRAY,dicaCol[i], ANSI_RESET);
     }
@@ -194,19 +195,38 @@ void limparBuffer(){
     while ((c = getchar()) != '\n' && !EOF);    
 }
 
-int verificarCmdMenu(char *comando){
-    if(strcmp(comando,"novo") == 0)
-        return 1;
-    else if(strcmp(comando, "carregar") == 0)
-        return 2;
-    else if(strcmp(comando, "exibir") == 0)
-        return 3;
-    else if(strcmp(comando, "ajuda") == 0)
-        return 4;
-    else if(strcmp(comando, "sair") == 0)
-        return 5;
-    else
-        return 0; //comando incorreto ou inexistente
+int verificarCmdMenu(char *nomeArquivo){
+    char comando[30];
+    char acao[10];
+    char lixo;
+    fgets(comando, sizeof(comando), stdin);
+    removeN(comando);
+    removerEspaco(comando);
+
+    int n = sscanf(comando,"%s %s %c",acao, nomeArquivo, &lixo);
+    if(n > 2)
+        return 0;
+    else if(n == 2){
+        if(strcmp(acao, "carregar") == 0){
+            return 2;
+        }
+        else if(strcmp(acao, "salvar") == 0)
+            return 5;
+        else
+            return 0;
+    }
+    else if(n == 1){
+        if(strcmp(acao, "novo") == 0)
+            return 1;
+        else if(strcmp(acao, "exibir") == 0)
+            return 3;
+        else if(strcmp(acao, "ajuda") == 0)
+            return 4;
+        else if(strcmp(acao, "sair") == 0)
+            return 6;
+        else 
+            return 0;
+    }
 }
 
 void removerEspaco(char *comando){
@@ -417,4 +437,25 @@ void mostrarDica(Celula **tabuleiro, int **mask,int tamMatriz){
             break;
     }
 
+}
+void resolverJogo(Celula **tabuleiro, int **mask, int tamMatriz){
+    for(int i = 0; i < tamMatriz; i++){
+        for(int j = 0; j < tamMatriz; j++){
+            if(mask[i][j] == 0)
+                tabuleiro[i][j].estado = REMOVIDA;
+            else
+                tabuleiro[i][j].estado = ATIVA;
+        }
+    }
+}
+
+int contaRemovidos(int **mask, int tamMatriz){
+    int cont = 0;
+    for(int i = 0; i < tamMatriz; i++){
+        for(int j = 0; j < tamMatriz; j++){
+            if(mask[i][j] == 0)
+                cont++;
+        }
+    }
+    return cont;
 }
