@@ -65,14 +65,26 @@
         int valor;
         int estado;
     }Celula;
+    typedef struct{
+        char nome[28];
+        int tamMatriz;
+        Celula **tabuleiro;
+        int **mask;
+        
+        int *dicalin;
+        int *dicaCol;
+
+        long tempoTotal = 0;
+    }jogoSumplete;
+
     void imprimirMenuInicial();
-    int somaLinReal(Celula **matriz, int tamMatriz, int poslin);
-    int somaColReal(Celula **matriz, int tamMatriz, int poscol);
-    void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol);
+    int somaLinReal(jogoSumplete jogo, int poslin);
+    int somaColReal(jogoSumplete jogo, int poscol);
+    void imprimeTabela(char nivel, jogoSumplete jogo);
     void convertM(char *palavra);
     void removeN(char *palavra);
     void limparBuffer();
-    int verificarCmdMenu(char *comando);
+    int verificarCmdMenu();
     void removerEspaco(char *comando);
     void copiaComando(char *comando, char *saida);
     //--------------alocação dinâmica-------------
@@ -85,9 +97,9 @@
     int verificaComando(int *x, int *y);
     void adicionarPos(Celula **jogo, int lin, int col, int tam);
     void removerPos(Celula **jogo, int lin, int col, int tam);
-    int verificaVitoria(Celula **matriz,const int *sumLin,const int *sumCol, int tam);
-    void geraMatrizeDica(Celula **matriz1,int **matriz2,int *lin, int *col, const int tam);
-    void mostrarDica(Celula **tabuleiro, int **mask,int tamMatriz);
-    void resolverJogo(Celula **tabuleiro, int **mask, int tamMatriz);
+    int verificaVitoria(jogoSumplete jogo);
+    void geraMatrizeDica(jogoSumplete *jogo);
+    void mostrarDica(jogoSumplete *jogo);
+    void resolverJogo(jogoSumplete *jogo);
     int contaRemovidos(int **mask, int tamMatriz);
 #endif // GAME_H

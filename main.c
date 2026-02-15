@@ -6,100 +6,124 @@
 
 
 int main(){
+    jogoSumplete jogo;
     int menuInicial;
-    char nomeArq[10];
-    Celula **tabuleiro;
-    int **posRemovidas;
-    int *dicaLin;
-    int *dicaCol;
+    char nomeArq[27];
+    int jogando = 0;
+    //temporizadores
+    time_t inicio, fim;
+    long tempoDeSessao;
 
     imprimirMenuInicial();
     srand(time(NULL));
     while (1){
         
-        menuInicial = verificarCmdMenu(nomeArq);
+        menuInicial = verificarCmdMenu();
         if(menuInicial == 1){
-            char nome[28];
+            int flag = 1;
+            inicio = time(NULL);
             char nivel;
             limparBuffer();
             printf("Digite o nome do jogador: ");
-            fgets(nome, sizeof(char) * 28,stdin);
-            printf("Digite o nivel de dificuldade: ");
-            nivel = getchar();
-            limparBuffer();
-            int tamMatriz;
-            if(nivel == 'F' || nivel == 'f')
-                tamMatriz = 3;
-            else if(nivel == 'M' || nivel == 'm')
-                tamMatriz = 5;
-            else if(nivel == 'D' || nivel == 'd')
-                tamMatriz = 7;
-            else{
-                printf("\nDificuldade inválida!!");
-                continue;
-            }
-            //aloca o tabuleiro e os vetores dicaLin e dicaCol
-            tabuleiro = alocaTabuleiro(tamMatriz);
-            posRemovidas = alocaMatriz(tamMatriz);
-            dicaLin = alocaVetor(tamMatriz);
-            dicaCol = alocaVetor(tamMatriz);
-            //--------------GERAR TABULEIRO-----------------
-            geraMatrizeDica(tabuleiro, posRemovidas, dicaLin, dicaCol, tamMatriz);
+            fgets(jogo.nome, sizeof(char) * 28,stdin);
+            removeN(jogo.nome);
+            removerEspaco(jogo.nome);
 
-            while(1){
-                //posiçao removida ou adicionada
-                int x;
-                int y;
-                //impressão do tabuleiro
-                imprimeTabela(nivel, tabuleiro, dicaLin, dicaCol);
-                printf("\n%s digite o comando: ", nome);
-                //funçao retorna um int com a acao desejada e a posição x,y.
-                int acaoJogo = verificaComando(&x, &y); 
+            while(flag){
+                printf("Digite o nivel de dificuldade: ");
+                nivel = getchar();
+                toupper(nivel);
+                limparBuffer();
 
-                    //REMOVER
-                    if(acaoJogo == 1){
-                        removerPos(tabuleiro, x, y, tamMatriz);
-                    }
-                    //ADICIONAR
-                    else if(acaoJogo == 2){
-                        adicionarPos(tabuleiro, x, y, tamMatriz);
-                    }
-                    //DICA
-                    else if(acaoJogo == 3){
-                        mostrarDica(tabuleiro, posRemovidas, tamMatriz);
-                    }
-                    //VOLTAR
-                    else if(acaoJogo == 4){
-                        break;
-                    }
-                    //RESOLVER
-                    else if(acaoJogo == 5){
-                        resolverJogo(tabuleiro, posRemovidas, tamMatriz);
-                    }
-                    else{
-                        printf("%sCOMANDO INVÁLIDO!!%s", ANSI_COLOR_RED, ANSI_RESET);
-                    }
-                    int venceu = verificaVitoria(tabuleiro, dicaLin, dicaCol,tamMatriz);
-                    /*if(venceu){
-                        //mostra as posições corretas em verde e as outras em vermelho e acaba
-                        break;
-                    }*/
-                
+                if(nivel == 'F'){
+                    jogo.tamMatriz = 3;
+                    jogando = 1;
+                    flag = 0;
+                }
+                else if(nivel == 'M'){
+                    jogo.tamMatriz = 5;
+                    jogando = 1;
+                    flag = 0;
+                }
+                else if(nivel == 'D'){
+                    jogo.tamMatriz = 7;
+                    jogando = 1;
+                    flag = 0;
+                }
+                else{
+                    printf("\nDificuldade inválida!!");
+                }
             }
             
-
-
-                free(dicaCol);
-                free(dicaLin);
-                liberaMatriz(posRemovidas, tamMatriz);
-                liberaTabuleiro(tabuleiro, tamMatriz);
-                break;
+            //aloca o tabuleiro e os vetores dicaLin e dicaCol
+            jogo.tabuleiro = alocaTabuleiro(jogo.tamMatriz);
+            jogo.mask = alocaMatriz(jogo.tamMatriz);
+            jogo.dicalin = alocaVetor(jogo.tamMatriz);
+            jogo.dicaCol = alocaVetor(jogo.tamMatriz);
+            //gera as posições aleatoriamente e as dicas
+            geraMatrizeDica(jogo);
         }
-        else if(menuInicial == 2){}
+        //carrega um jogo salvo;
+        else if(menuInicial == 2){
+            inicio = time(NULL);
+        }
+        //exibe o ranking
         else if(menuInicial == 3){}
+        //mostra os comando do jogo
         else if(menuInicial == 4){}
+        //salva o jogo atual
         else if(menuInicial == 5){}
-        else if(menuInicial == 6){}
+        //encerra o jogo
+        else if(menuInicial == 6){
+            return 1;
+        }
+        while(jogando){
+            //posiçao removida ou adicionada
+            int x;
+            int y;
+            //impressão do tabuleiro
+            imprimeTabela(jogo);
+            printf("\n%s digite o comando: ", nome);
+            //funçao retorna um int com a acao desejada e a posição x,y.
+            int acaoJogo = verificaComando(&x, &y); 
+
+            //REMOVER
+            if(acaoJogo == 1){
+                removerPos(jogo.tabuleiro, x, y, jogo.tamMatriz);
+                }
+                //ADICIONAR
+                else if(acaoJogo == 2){
+                    adicionarPos(jogo.tabuleiro, x, y, jogo.tamMatriz);
+                }
+                //DICA
+                else if(acaoJogo == 3){
+                    mostrarDica(&jogo);
+                }
+                //VOLTAR
+                else if(acaoJogo == 4){
+                    fim = time(NULL);
+                    tempoDeSessao = (long)difftime(fim, inicio);
+                    jogo.tempoTotal += tempoDeSessao;
+                    break;
+                }
+                //RESOLVER
+                else if(acaoJogo == 5){
+                    resolverJogo(&jogo);
+                }
+                else{
+                    printf("%sCOMANDO INVÁLIDO!!%s", ANSI_COLOR_RED, ANSI_RESET);
+                }
+                int venceu = verificaVitoria(tabuleiro, dicaLin, dicaCol,tamMatriz);
+                if(venceu){
+                    fim = time(NULL);
+                    tempoDeSessao = difftime(fim, inicio);
+                    jogo.tempoTotal += tempoDeSessao;
+                    printf("%sVOCÊ VENCEU O SUMPLETE!!!%s", ANSI_COLOR_GREEN, ANSI_RESET);
+                    break;
+                }
+                
+                
+            }
     break;
     }
     

@@ -5,69 +5,11 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
-//constantes
-#define VAZIA 0
-#define ATIVA 1
-#define REMOVIDA 2
-#define REMOVER 11
-#define ADICIONAR 12
-//Elementos para tabelas
-#define TAB_HOR "\u2501" // ━ (horizontal)
-#define TAB_VER "\u2503" // ┃ (vertical)
-#define TAB_TL "\u250F" // ┏ (canto superior esquerdo)
-#define TAB_ML "\u2523" // ┣ (meio-esquerda)
-#define TAB_BL "\u2517" // ┗ (canto inferior esquerdo)
-#define TAB_TJ "\u2533" // ┳ (top-join)
-#define TAB_MJ "\u254B" // ╋ (junção do meio)
-#define TAB_BJ "\u253B" // ┻ (junção inferior)
-#define TAB_TR "\u2513" // ┓ (canto superior direito)
-#define TAB_MR "\u252B" // ┫ (meio-direita)
-#define TAB_BR "\u251B" // ┛ (canto inferior direito)
-// cores e formato de texto
-#define ANSI_RESET "\x1b[0m" // desativa os efeitos anteriores
-#define ANSI_BOLD "\x1b[1m" // coloca o texto em preto
-#define ANSI_COLOR_BLACK "\x1b[30m"
-#define ANSI_COLOR_RED "\x1b[31m"
-#define ANSI_COLOR_GREEN "\x1b[32m"
-#define ANSI_COLOR_YELLOW "\x1b[33m"
-#define ANSI_COLOR_BLUE "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN "\x1b[36m"
-#define ANSI_COLOR_WHITE "\x1b[37m"
-#define ANSI_BG_COLOR_BLACK "\x1b[40m"
-#define ANSI_BG_COLOR_RED "\x1b[41m"
-#define ANSI_BG_COLOR_GREEN "\x1b[42m"
-#define ANSI_BG_COLOR_YELLOW "\x1b[43m"
-#define ANSI_BG_COLOR_BLUE "\x1b[44m"
-#define ANSI_BG_COLOR_MAGENTA "\x1b[45m"
-#define ANSI_BG_COLOR_CYAN "\x1b[46m"
-#define ANSI_BG_COLOR_WHITE "\x1b[47m"
-#define ANSI_COLOR_GRAY  "\x1b[90m"
-// macros para facilitar o uso
-#define NEGRITO(string) ANSI_NEGRITO string ANSI_RESET
-#define BLACK(string) ANSI_COLOR_BLACK string ANSI_RESET
-#define BLUE(string) ANSI_COLOR_BLUE string ANSI_RESET
-#define RED(string) ANSI_COLOR_RED string ANSI_RESET
-#define GREEN(string) ANSI_COLOR_GREEN string ANSI_RESET
-#define AMARELO(string) ANSI_COLOR_AMARELO string ANSI_RESET
-#define BLUE(string) ANSI_COLOR_BLUE string ANSI_RESET
-#define MAGENTA(string) ANSI_COLOR_MAGENTA string ANSI_RESET
-#define CYAN(string) ANSI_COLOR_CYAN string ANSI_RESET
-#define WHITE(string) ANSI_COLOR_WHITE string ANSI_RESET
-#define GRAY(string) ANSI_COLOR_GRAY string ANSI_COLOR_RESET
-#define BG_BLACK(string) ANSI_BG_COLOR_BLACK string ANSI_RESET
-#define BG_BLUE(string) ANSI_BG_COLOR_BLUE string ANSI_RESET
-#define BG_RED(string) ANSI_BG_COLOR_RED string ANSI_RESET
-#define BG_GREEN(string) ANSI_BG_COLOR_GREEN string ANSI_RESET
-#define BG_YELLOW(string) ANSI_BG_COLOR_YELLOW string ANSI_RESET
-#define BG_BLUE(string) ANSI_BG_COLOR_BLUE string ANSI_RESET
-#define BG_MAGENTA(string) ANSI_BG_COLOR_MAGENTA string ANSI_RESET
-#define BG_CYAN(string) ANSI_BG_COLOR_CYAN string ANSI_RESET
-#define BG_WHITE(string) ANSI_BG_COLOR_WHITE string ANSI_RESET
+
 
 
 void imprimirMenuInicial(){
-    printf("%s\n", ANSI_BG_COLOR_GREEN);
+    printf("%s\n", ANSI_COLOR_BLUE);
     printf("\n╔═════════════ MENU PRINCIPAL ════════════════╗\n");
     printf("║                                             ║\n");
     printf("║   [novo]     -> Iniciar um novo jogo        ║\n");
@@ -82,36 +24,26 @@ void imprimirMenuInicial(){
     printf("\nDIGITE UM COMANDO: ");
 
 }
-int somaLinReal(Celula **matriz, int tamMatriz, int poslin){
+int somaLinReal(jogoSumplete jogo, int poslin){
     int soma = 0;
-    for(int i = 0; i < tamMatriz; i++){
-        if(matriz[poslin][i].estado != REMOVIDA)
-            soma += matriz[poslin][i].valor;
+    for(int i = 0; i < jogo.tamMatriz; i++){
+        if(jogo.tabuleiro[poslin][i].estado != REMOVIDA)
+            soma += jogo.tabuleiro[poslin][i].valor;
     }
     return soma;
 }
-int somaColReal(Celula **matriz, int tamMatriz, int poscol){
+int somaColReal(jogoSumplete jogo, int poscol){
     int soma = 0;
-    for(int i = 0; i < tamMatriz; i++){
-        if(matriz[i][poscol].estado != REMOVIDA)
-            soma += matriz[i][poscol].valor;
+    for(int i = 0; i < jogo.tamMatriz; i++){
+        if(jogo.tabuleiro[i][poscol].estado != REMOVIDA)
+            soma += jogo.[i][poscol].valor;
     }
     return soma;
 
 }
 
-void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
-    int cont;
-
-    if(nivel == 'F' || nivel == 'f') cont = 2;
-    else if(nivel=='M' || nivel == 'm') cont = 4;
-    else if(nivel == 'D' || nivel == 'd') cont = 6;
-    else{
-        printf("Dificuldade inválida\n");
-        return;
-    }
-
-    int n = cont + 1; // tamanho real (valores 1..9)
+void imprimeTabela(jogoSumplete jogo){
+    int n = jogo.tamMatriz; // tamanho real (valores 1..9)
 
     // -------- TOPO --------
     printf("%s", TAB_TL);
@@ -124,12 +56,12 @@ void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
     for(int k = 0; k < n; k++){
 
         for(int i = 0; i < n; i++){
-            int v = matriz[k][i].valor;
+            int v = jogo.tabuleiro[k][i].valor;
 
-            if(matriz[k][i].estado == ATIVA){
+            if(jogo.tabuleiro[k][i].estado == ATIVA){
                 printf("%s%s %d %s", TAB_VER, ANSI_BG_COLOR_GREEN, v, ANSI_RESET);
             }
-            else if(matriz[k][i].estado == REMOVIDA){
+            else if(jogo.tabuleiro[k][i].estado == REMOVIDA){
                 printf("%s%s %d %s", TAB_VER, ANSI_BG_COLOR_RED, v, ANSI_RESET);
             }
             else{
@@ -138,15 +70,15 @@ void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
         }
 
         // dica da linha no final
-        int somaliReal = somaLinReal(matriz, n, k); 
-        if(somaliReal == dicaLin[k]){
-            printf("%s%s %d%s\n", TAB_VER, ANSI_COLOR_GREEN, dicaLin[k], ANSI_RESET);
+        int somaliReal = somaLinReal(jogo, k); 
+        if(somaliReal == jogo.dicalin[k]){
+            printf("%s%s %d%s\n", TAB_VER, ANSI_COLOR_GREEN, jogo.dicalin[k], ANSI_RESET);
         }
         else{
-            printf("%s%s %d%s\n", TAB_VER, ANSI_COLOR_GRAY, dicaLin[k], ANSI_RESET);
+            printf("%s%s %d%s\n", TAB_VER, ANSI_COLOR_GRAY, jogo.dicalin[k], ANSI_RESET);
         }
 
-        // -------- LINHA DO MEIO (ENTRE LINHAS) --------
+        // linha do meio antes da borda
         if(k < n-1){
             printf("%s", TAB_ML);
             for(int i = 0; i < n-1; i++){
@@ -156,7 +88,7 @@ void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
         }
     }
 
-    // -------- BORDA INFERIOR --------
+    // borda inferior
     printf("%s", TAB_BL);
     for(int i = 0; i < n-1; i++){
         printf("%s%s%s%s", TAB_HOR, TAB_HOR, TAB_HOR, TAB_BJ);
@@ -167,11 +99,11 @@ void imprimeTabela(char nivel, Celula **matriz, int *dicaLin, int *dicaCol){
     printf("  ");
     
     for(int i = 0; i < n; i++){
-        int somaclReal = somaColReal(matriz,n, i);
-        if(somaclReal == dicaCol[i])
-            printf("%s%2d%s  ",ANSI_COLOR_GREEN, dicaCol[i], ANSI_RESET);
+        int somaclReal = somaColReal(jogo, i);
+        if(somaclReal == jogo.dicaCol[i])
+            printf("%s%2d%s  ",ANSI_COLOR_GREEN, jogo.dicaCol[i], ANSI_RESET);
         else
-            printf("%s%2d  %s", ANSI_COLOR_GRAY,dicaCol[i], ANSI_RESET);
+            printf("%s%2d  %s", ANSI_COLOR_GRAY,jogo.dicaCol[i], ANSI_RESET);
     }
 
     printf("\n");
@@ -195,7 +127,7 @@ void limparBuffer(){
     while ((c = getchar()) != '\n' && !EOF);    
 }
 
-int verificarCmdMenu(char *nomeArquivo){
+int verificarCmdMenu(){
     char comando[30];
     char acao[10];
     char lixo;
@@ -203,7 +135,7 @@ int verificarCmdMenu(char *nomeArquivo){
     removeN(comando);
     removerEspaco(comando);
 
-    int n = sscanf(comando,"%s %s %c",acao, nomeArquivo, &lixo);
+    int n = sscanf(comando,"%s %c",acao, &lixo);
     if(n > 2)
         return 0;
     else if(n == 2){
@@ -277,8 +209,15 @@ Celula **alocaTabuleiro(int tam){
     }
 int **alocaMatriz(int tam){
     int **matriz = (int**)malloc(tam *sizeof(int*));
+        if(matriz == NULL)
+            return NULL;
     for(int i = 0; i < tam; i++){
         matriz[i] = (int*)malloc(sizeof(int) * tam);
+        if(matriz[i] == NULL);
+        for(int k = 0;k < i; k++){
+            free(matriz[i]);
+            free(matriz);
+        }
     }
     return matriz;
 }
@@ -317,7 +256,7 @@ int verificaComando(int *x, int *y){
     if(n == 1){ 
         if(strcmp(acao, "resolver") == 0)
             return 5;
-        else if(strcmp(acao, "voltar") == 0)
+        else if(strcmp(acao, "sair") == 0)
             return 4;
         else if(strcmp(acao, "dica") == 0)
             return 3;
@@ -361,74 +300,66 @@ void removerPos(Celula **jogo, int lin, int col, int tam){
     else
         jogo[lin][col].estado = 2;
 }
-int verificaVitoria(Celula **matriz,const int *sumLin,const int *sumCol, int tam){
+int verificaVitoria(jogoSumplete jogo){
 
     int somaLinha, somaColuna, cont = 0;
-    for(int i = 0; i < tam; i++){
-        somaLinha = 0;
-        for(int j = 0; j < tam; j++){
-            if(matriz[i][j].estado != REMOVIDA)
-                somaLinha += matriz[i][j].valor;
-        }
-        if(somaLinha == sumLin[i])
+    for(int i = 0; i < jogo.tamMatriz; i++){
+        somaLinha = somaLinReal(jogo, i);
+        if(somaLinha == jogo.dicalin[i])
             cont++;
     }
     for(int j = 0; j < tam; j++){
-        somaColuna = 0;
-        for(int i = 0; i < tam; i++)
-            if(matriz[i][j].estado != REMOVIDA)
-                somaColuna += matriz[i][j].valor;
-
-        if(somaColuna == sumCol[j])
+        somaColuna = somaColReal(jgo, j);
+        if(somaColuna == jogo.dicaCol[j])
             cont++;
     }
-    if(cont == tam * 2)
+    if(cont == jogo.tamMatriz * 2)
         return 1; //retorna 1 se o jogador venceu
     else
         return 0; // e 0 se a soma das linhas e colunas ainda não estão corretas
 }
-void geraMatrizeDica(Celula **matriz1,int **matriz2,int *lin, int *col, const int tam){
+void geraMatrizeDica(jogoSumplete *jogo){
 
     int somaLin, somaCol;
     //completa o tabuleiro com valores aleatórios de 1 a 9
-    for(int i = 0; i < tam; i++){
-        for(int j = 0; j < tam; j++){
-            matriz1[i][j].valor = (rand() % 9) +1;
-            matriz1[i][j].estado = 0;
+    for(int i = 0; i < jogo->tamMatriz; i++){
+        for(int j = 0; j < jogo->tamMatriz; j++){
+            jogo->tabuleiro[i][j].valor = (rand() % 9) +1;
+            jogo->tabuleiro[i][j].estado = 0;
         }
         }
 // gera as posições removidas do tabuleiro com 1 para soma e 0 removido da soma
-    for(int i = 0; i < tam; i++){
-        for(int j = 0; j < tam; j++)
-            matriz2[i][j] = rand() % 2;
+    for(int i = 0; i < jogo->tamMatriz; i++){
+        for(int j = 0; j < jogo->tamMatriz; j++)
+            jogo->mask[i][j] = rand() % 2;
     }
     //gera as dicas das linhas 
-    for(int i = 0; i < tam; i++){
+    for(int i = 0; i < jogo->tamMatriz; i++){
         somaLin = 0;
-        for(int j = 0; j < tam; j++){
-            if(matriz2[i][j] == 1)
-                somaLin += matriz1[i][j].valor;
+        for(int j = 0; j < jogo->tamMatriz; j++){
+            if(jogo->mask[i][j] == 1)
+                somaLin += jogo->tabuleiro[i][j].valor;
         }
-        lin[i] = somaLin;
+        jogo->dicalin[i] = somaLin;
     }
     //gera as dicas das colunas
-    for(int j = 0; j < tam; j++){
+    for(int j = 0; j < jogo->tamMatriz; j++){
         somaCol = 0;
-        for(int i = 0; i < tam; i++){
-            if(matriz2[i][j] == 1)
-                somaCol += matriz1[i][j].valor;
+        for(int i = 0; i < jogo->tamMatriz; i++){
+            if(jogo.mask[i][j] == 1)
+                somaCol += jogo->tabuleiro[i][j].valor;
         }
-        col[j] = somaCol;
+        jogo->dicaCol[j] = somaCol;
     }
 
 }
 //procura a primeira posição que deve ser removida na máscara e compara se o estado é diferete de REMOVIDO se for remova a posição no tabuleiro
-void mostrarDica(Celula **tabuleiro, int **mask,int tamMatriz){
+void mostrarDica(jogoSumplete *jogo){
     int c = 0;
-    for(int i = 0; i < tamMatriz; i++){
-        for(int j = 0; j < tamMatriz; j++){
-            if(mask[i][j] == 0 && tabuleiro[i][j].estado != REMOVIDA){
-                tabuleiro[i][j].estado = 2;
+    for(int i = 0; i < jogo->tamMatriz; i++){
+        for(int j = 0; j < jogo->tamMatriz; j++){
+            if(jogo->mask[i][j] == 0 && jogo->tabuleiro[i][j].estado != REMOVIDA){
+                jogo->tabuleiro[i][j].estado = 2;
                 c = 1;
                 break;
             }
@@ -438,13 +369,13 @@ void mostrarDica(Celula **tabuleiro, int **mask,int tamMatriz){
     }
 
 }
-void resolverJogo(Celula **tabuleiro, int **mask, int tamMatriz){
-    for(int i = 0; i < tamMatriz; i++){
-        for(int j = 0; j < tamMatriz; j++){
-            if(mask[i][j] == 0)
-                tabuleiro[i][j].estado = REMOVIDA;
+void resolverJogo(jogoSumplete *jogo){
+    for(int i = 0; i < jogo->tamMatriz; i++){
+        for(int j = 0; j < jogo->tamMatriz; j++){
+            if(jogo->mask[i][j] == 0)
+                jogo->tabuleiro[i][j].estado = REMOVIDA;
             else
-                tabuleiro[i][j].estado = ATIVA;
+                jogo->tabuleiro[i][j].estado = ATIVA;
         }
     }
 }
