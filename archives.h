@@ -2,6 +2,6 @@
 #define ARCHIVES_H
 
 int contaJogada(Celula **tabuleiro, int tamMatriz);
-int salvarJogo(Celula **tabuleiro, int **mask, int tamMatriz, int *dicaLin, int dicaCol, char *nome, char *nomeArq);
-
+int salvarJogo(jogoSumplete jogo, char *nomeArq);
+int carregarJogo(jogoSumplete *jogo, char *nomeArq);
 #endif // ARCHIVES_H

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "game.h"
+#include "archives.h"
 #include <time.h>
 //#include "ranking.h"
 
@@ -21,7 +22,6 @@ int main(){
         menuInicial = verificarCmdMenu();
         if(menuInicial == 1){
             int flag = 1;
-            inicio = time(NULL);
             char nivel;
             limparBuffer();
             printf("Digite o nome do jogador: ");
@@ -65,18 +65,33 @@ int main(){
         }
         //carrega um jogo salvo;
         else if(menuInicial == 2){
-            inicio = time(NULL);
+            printf("\n%sDIGITE O NOME DO ARQUIVO:%s\nUtilize a extenssão .txt ao final do nome!", ANSI_COLOR_BLUE, ANSI_RESET);
+            fgets(nomeArq, sizeof(nomeArq), stdin);
+            int v = carregarJogo(jogo, nomeArq);
+            if(v)
+            jogando = 1;
+            else{
+                printf("%s\nNÃO FOI POSSÍVEL CARREGAR O JOGO%s", ANSI_COLOR_RED, ANSI_RESET);
+            }
         }
         //exibe o ranking
         else if(menuInicial == 3){}
         //mostra os comando do jogo
         else if(menuInicial == 4){}
         //salva o jogo atual
-        else if(menuInicial == 5){}
+        else if(menuInicial == 5){
+            salvarJogo(jogo, nomeArq);
+        }
         //encerra o jogo
         else if(menuInicial == 6){
+            liberaTabuleiro(jogo.tabuleiro, jogo.tamMatriz);
+            liberaMatriz(jogo.mask, jogo.tamMatriz);
+            free(jogo.dicaCol);
+            free(jogo.dicalin);
+
             return 1;
         }
+        inicio = time(NULL);
         while(jogando){
             //posiçao removida ou adicionada
             int x;
@@ -104,7 +119,7 @@ int main(){
                     fim = time(NULL);
                     tempoDeSessao = (long)difftime(fim, inicio);
                     jogo.tempoTotal += tempoDeSessao;
-                    break;
+                    jogando = 0;
                 }
                 //RESOLVER
                 else if(acaoJogo == 5){

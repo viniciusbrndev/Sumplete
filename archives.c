@@ -50,33 +50,33 @@ int salvarJogo(jogoSumplete jogo, char *nomeArq){
     for(int i =; i < jogo.tamMatriz; i++){
         for(int j = 0; j < jogo.tamMatriz; j++){
             if(jogo.mask[i][j] == 0;)
-                fprintf(save, "%d %d", i, j);
+                fprintf(save, "%d %d\n", i, j);
         }
-        fprintf(save, "\n");
     }
     //conta as ações feitas pelo usuário e salva no arquivo
     int posJogada = contaJogada(jogo.tabuleiro, jogo.tamMatriz);
-    fprintf(save, "%d", posJogada);
+    fprintf(save, "%d ", posJogada);
     fprintf(save, "\n");
     // imprime o tabuleiro com o estado da célula, se removido a posição recebe "r" se adicionada recebe "a" nenhuma ação mandtém o valor real da célula
     for(int i = 0; i < jogo.tamMatriz; i++){
         for(int j = 0; j < jogo.tamMatriz; j++){
-            if(jogo.tabuleiro[i][j].estado == 2)
-                fprintf(save, "r ");
-            else if(jogo.tabuleiro[i][j].estado == 1)
-                fprintf(save, "a ");
-            else
-                fprintf(save, "%d ", jogo.tabuleiro[i][j].valor);
+            if(jogo.tabuleiro[i][j].estado == 2){
+                fprintf(save, "r %d %d\n", i, j);
+            }
+            else if(jogo.tabuleiro[i][j].estado == 1){
+                fprintf(save, "a %d %d\n", i, j);
+            }
         }
-        fprintf(save, "\n");
     }
-    fprintf(save, "\n%s", nome);
+    fprintf(save, "%s", nome);
     fprintf(save, "\n%ld", jogo.tempoTotal);
 
 
 }
 int carregarJogo(jogoSumplete *jogo, char *nomeArq){
     FILE *arqSalvo = fopen(nomeArq, "r");
+    if(arqSalvo == NULL)
+        return 0;
     fscanf(arqSalvo, "%d", &jogo->tamMatriz);
     //alocando a memória
     jogo->tabuleiro = alocaTabuleiro(jogo->tamMatriz);
@@ -88,7 +88,7 @@ int carregarJogo(jogoSumplete *jogo, char *nomeArq){
     for(int i = 0; i < jogo->tamMatriz; i++){
         for(int j = 0; j < jogo->tamMatriz; j++){
             fscanf(arqSalvo, "%d", &jogo->tabuleiro[i][j].valor);
-            jogo->tabuleiro.estado = 0;
+            jogo->tabuleiro[i][j].estado = 0;
         }
     }
     //lendo as dicas
@@ -105,10 +105,30 @@ int carregarJogo(jogoSumplete *jogo, char *nomeArq){
     }
     //pega as posições salvas no arq como removida e coloca 0 no local na máscara
     int n, lin, col;
+
     fscanf(arqSalvo, "%d", &n);
     for(int i = 0; i < n; i++){
         fscanf(arqSalvo, "%d %d", &lin, &col);
         jogo->mask[lin][col] = 0;
     }
-    
+    //le o número de movimentos do usuário e escreve o estado da célula com base em "r" e "a"
+    int acoes;
+    char estado;
+    fscanf(arqSalvo, "%d", &acoes);
+    for(int i = 0; i < acoes; i++){
+        fscanf(arqSalvo, " %c %d %d", &estado, &lin, &col);
+        if(estado == 'r')
+            jogo->tabuleiro[lin][col].estado = REMOVIDA;
+        else if(estado == 'a')
+            jogo->tabuleiro[lin][col].estado = ATIVA;
+    }
+    char lixo[256];
+    fgets(lixo, "%s", arqSalvo);
+    //lê o nome e remove o possível \n 
+    fgets(jogo->nome, sizeof(jogo->nome), arqSalvo);
+    removeN(jogo->nome);
+    fscanf(arqSalvo, "%ld", &jogo->tempoTotal);
+    //fecha o arquivo
+    fclose(arqSalvo);
+    return 1;
 }
