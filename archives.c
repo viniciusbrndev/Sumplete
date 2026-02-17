@@ -1,3 +1,4 @@
+#include "types.h"
 #include "archives.h"
 #include "game.h"
 #include <stdio.h>
@@ -10,8 +11,8 @@ int contaJogada(Celula **tabuleiro, int tamMatriz){
     int cont = 0;
     for(int i = 0; i < tamMatriz; i++){
         for(int j = 0; j < tamMatriz; j++){
-            if(tabuleiro[i].estado != 0)
-                cont++
+            if(tabuleiro[i][j].estado != 0)
+                cont++;
         }
     }
     return cont;
@@ -26,6 +27,7 @@ int salvarJogo(jogoSumplete jogo, char *nomeArq){
     }
     fprintf(save, "%d ", jogo.tamMatriz);//salva o tamanho do tabuleiro
     //imprime os valores do tabuleiro no arquivo txt
+    fprintf(save, "\n");
     for(int i = 0;  i < jogo.tamMatriz; i++){
         for(int j = 0; j < jogo.tamMatriz; j++){
                 fprintf(save, "%d ", jogo.tabuleiro[i][j].valor);
@@ -34,7 +36,7 @@ int salvarJogo(jogoSumplete jogo, char *nomeArq){
     }
     //salva as dicas das linhas
     for(int i = 0; i < jogo.tamMatriz; i++){
-        fprintf(save, "%d ", jogo.dicalin[i])
+        fprintf(save, "%d ", jogo.dicalin[i]);
     }
     fprintf(save, "\n");
     //salva as dicas das colunas
@@ -47,9 +49,9 @@ int salvarJogo(jogoSumplete jogo, char *nomeArq){
     fprintf(save, "%d ",removidos);
     fprintf(save, "\n");
     //procura as posições removidas na máscara e salva as posições no arq
-    for(int i =; i < jogo.tamMatriz; i++){
+    for(int i = 0; i < jogo.tamMatriz; i++){
         for(int j = 0; j < jogo.tamMatriz; j++){
-            if(jogo.mask[i][j] == 0;)
+            if(jogo.mask[i][j] == 0)
                 fprintf(save, "%d %d\n", i, j);
         }
     }
@@ -68,10 +70,10 @@ int salvarJogo(jogoSumplete jogo, char *nomeArq){
             }
         }
     }
-    fprintf(save, "%s", nome);
+    fprintf(save, "%s", jogo.nome);
     fprintf(save, "\n%ld", jogo.tempoTotal);
-
-
+    fclose(save);
+    return 1;
 }
 int carregarJogo(jogoSumplete *jogo, char *nomeArq){
     FILE *arqSalvo = fopen(nomeArq, "r");
@@ -123,7 +125,7 @@ int carregarJogo(jogoSumplete *jogo, char *nomeArq){
             jogo->tabuleiro[lin][col].estado = ATIVA;
     }
     char lixo[256];
-    fgets(lixo, "%s", arqSalvo);
+    fgets(lixo, sizeof(lixo), arqSalvo);
     //lê o nome e remove o possível \n 
     fgets(jogo->nome, sizeof(jogo->nome), arqSalvo);
     removeN(jogo->nome);

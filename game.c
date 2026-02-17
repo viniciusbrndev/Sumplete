@@ -1,5 +1,7 @@
 //Bibliotecas
+#include "types.h"
 #include "game.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -36,7 +38,7 @@ int somaColReal(jogoSumplete jogo, int poscol){
     int soma = 0;
     for(int i = 0; i < jogo.tamMatriz; i++){
         if(jogo.tabuleiro[i][poscol].estado != REMOVIDA)
-            soma += jogo.[i][poscol].valor;
+            soma += jogo.tabuleiro[i][poscol].valor;
     }
     return soma;
 
@@ -129,56 +131,57 @@ void limparBuffer(){
 
 int verificarCmdMenu(){
     char comando[30];
-    char acao[10];
+    char acao[11];
     char lixo;
     fgets(comando, sizeof(comando), stdin);
     removeN(comando);
     removerEspaco(comando);
 
-    int n = sscanf(comando,"%s %c",acao, &lixo);
+    int n = sscanf(comando,"%9s %c",acao, &lixo);
+    if (comando[0] == '\0')
+        return -1;
     if(n > 2)
-        return 0;
-    else if(n == 2){
-        if(strcmp(acao, "carregar") == 0){
-            return 2;
-        }
-        else if(strcmp(acao, "salvar") == 0)
-            return 5;
-        else
-            return 0;
-    }
+        return 0;    
     else if(n == 1){
         if(strcmp(acao, "novo") == 0)
             return 1;
+        else if(strcmp(acao, "carregar") == 0)
+            return 2;
         else if(strcmp(acao, "exibir") == 0)
             return 3;
         else if(strcmp(acao, "ajuda") == 0)
             return 4;
+        else if(strcmp(acao, "salvar") == 0)
+            return 5;
         else if(strcmp(acao, "sair") == 0)
             return 6;
         else 
             return 0;
     }
+    return 0;
 }
 
-void removerEspaco(char *comando){
-    int tam = strlen(comando);
-    //puxa as letras após o último espaço para o começo da string
-    for(int i = 0; comando[i] == ' ' || comando[i] == '\t'; i++){
-        for(int j =0; j < tam; j++){
-            comando[j] = comando[j+1];
-        }
-        tam--;
+void removerEspaco(char *s){
+    if (!s) return;
 
+    // remove \n e \r se existirem (caso removeN não pegue todos)
+    size_t len = strcspn(s, "\r\n");
+    s[len] = '\0';
+
+    // remove espaços/tabs do começo
+    size_t start = 0;
+    while (s[start] && isspace((unsigned char)s[start])) start++;
+
+    if (start > 0) {
+        memmove(s, s + start, strlen(s + start) + 1);
     }
-    int i;
-    for(i= tam -1; comando[i] == ' ' || comando[i] == '\t'; i--){
 
+    // remove espaços/tabs do fim
+    len = strlen(s);
+    while (len > 0 && isspace((unsigned char)s[len - 1])) {
+        s[len - 1] = '\0';
+        len--;
     }
-    comando[i+1] = '\0';
-
-
-
 }
 
 void copiaComando(char *comando, char *saida){
@@ -213,7 +216,7 @@ int **alocaMatriz(int tam){
             return NULL;
     for(int i = 0; i < tam; i++){
         matriz[i] = (int*)malloc(sizeof(int) * tam);
-        if(matriz[i] == NULL);
+        if(matriz[i] == NULL)
         for(int k = 0;k < i; k++){
             free(matriz[i]);
             free(matriz);
@@ -308,8 +311,8 @@ int verificaVitoria(jogoSumplete jogo){
         if(somaLinha == jogo.dicalin[i])
             cont++;
     }
-    for(int j = 0; j < tam; j++){
-        somaColuna = somaColReal(jgo, j);
+    for(int j = 0; j < jogo.tamMatriz; j++){
+        somaColuna = somaColReal(jogo, j);
         if(somaColuna == jogo.dicaCol[j])
             cont++;
     }
@@ -346,7 +349,7 @@ void geraMatrizeDica(jogoSumplete *jogo){
     for(int j = 0; j < jogo->tamMatriz; j++){
         somaCol = 0;
         for(int i = 0; i < jogo->tamMatriz; i++){
-            if(jogo.mask[i][j] == 1)
+            if(jogo->mask[i][j] == 1)
                 somaCol += jogo->tabuleiro[i][j].valor;
         }
         jogo->dicaCol[j] = somaCol;
@@ -389,4 +392,18 @@ int contaRemovidos(int **mask, int tamMatriz){
         }
     }
     return cont;
+}
+
+void esperaEnter(){
+    char buf[64];
+
+    printf("\nDigite \"ENTER\" para continuar: ");
+    fgets(buf, sizeof(buf), stdin);
+}
+int lerLinha(char *buf, int tam){
+    if (!fgets(buf, tam, stdin)) 
+        return 0;
+    removeN(buf);
+    removerEspaco(buf);
+    return 1;
 }
