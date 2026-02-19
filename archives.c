@@ -73,6 +73,8 @@ int salvarJogo(jogoSumplete jogo, char *nomeArq){
     fprintf(save, "%s", jogo.nome);
     fprintf(save, "\n%ld", jogo.tempoTotal);
     fclose(save);
+    printf("\n%sJOGO SALVO COM SUCESSO!%s", ANSI_COLOR_GREEN, ANSI_RESET);
+    esperaEnter();
     return 1;
 }
 int carregarJogo(jogoSumplete *jogo, char *nomeArq){
@@ -81,6 +83,7 @@ int carregarJogo(jogoSumplete *jogo, char *nomeArq){
         return 0;
     fscanf(arqSalvo, "%d", &jogo->tamMatriz);
     //alocando a memória
+    liberaJogo(jogo);
     jogo->tabuleiro = alocaTabuleiro(jogo->tamMatriz);
     jogo->mask = alocaMatriz(jogo->tamMatriz);
     jogo->dicalin = alocaVetor(jogo->tamMatriz);

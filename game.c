@@ -126,21 +126,34 @@ void removeN(char *palavra){
 }
 void limparBuffer(){
     char c;
-    while ((c = getchar()) != '\n' && !EOF);    
+    while ((c = getchar()) != '\n' && c != EOF);    
 }
-
+int linhaSegura(char *linha, int tam){
+    fgets(linha,tam,stdin);
+    //verifica se a linha tem um \n se n tiver a linha foi maior que o buffer
+    if(strchr(linha, '\n'))
+        return 1;
+    else{
+        limparBuffer();
+        return 2;
+    }
+}
 int verificarCmdMenu(){
     char comando[30];
     char acao[11];
     char lixo;
-    fgets(comando, sizeof(comando), stdin);
-    removeN(comando);
-    removerEspaco(comando);
-
+    int a = linhaSegura(comando, sizeof(comando));
+    if(a == 1){
+        removeN(comando);
+        removerEspaco(comando);
+    }
+    else if(a == 2)
+        return -1;
     int n = sscanf(comando,"%9s %c",acao, &lixo);
+    
     if (comando[0] == '\0')
         return -1;
-    if(n > 2)
+    if(n > 1)
         return 0;    
     else if(n == 1){
         if(strcmp(acao, "novo") == 0)
@@ -155,8 +168,6 @@ int verificarCmdMenu(){
             return 5;
         else if(strcmp(acao, "sair") == 0)
             return 6;
-        else 
-            return 0;
     }
     return 0;
 }
@@ -245,9 +256,15 @@ int verificaComando(int *x, int *y){
     char lixo; //lixo que pode ser inserido pelo usuario "...1 1 abc"
     int opcao = 0;
     //Lê o comando do teclado e usa funções para formatar a entrada 
-    fgets(comando2, sizeof(comando2), stdin);
-    removerEspaco(comando2);
-    removeN(comando2);
+    int l = linhaSegura(comando2, sizeof(comando2));
+    if(l == 1){
+        removerEspaco(comando2);
+        removeN(comando2);
+    }
+    else if(l == 2)
+        return -1;
+    if(comando2[0] == '\0')
+        return -1;
     //sscanf() lê de uma string e retorna a quantidade de membros encontrados
     int n = sscanf(comando2," %10s %d %d %c", acao, &a, &b, &lixo);
     convertM(acao);
@@ -288,7 +305,7 @@ int verificaComando(int *x, int *y){
 }
 
 void adicionarPos(Celula **jogo, int lin, int col, int tam){
-    if(lin > tam || col > tam)
+    if(lin < 0|| col < 0||lin >= tam || col >= tam)
         return;
     if(jogo[lin][col].estado == 1)
         jogo[lin][col].estado = 0; //se já estiver "verde" volta para o estado inicial 0
@@ -296,7 +313,7 @@ void adicionarPos(Celula **jogo, int lin, int col, int tam){
         jogo[lin][col].estado = 1;
 }
 void removerPos(Celula **jogo, int lin, int col, int tam){
-    if(lin > tam || col > tam)
+    if(lin < 0|| col < 0||lin >= tam || col >= tam)
         return;
     if(jogo[lin][col].estado == 2)
         jogo[lin][col].estado = 0; //se já estiver "vermelho" volta para o estado inicial 0
@@ -397,7 +414,7 @@ int contaRemovidos(int **mask, int tamMatriz){
 void esperaEnter(){
     char buf[64];
 
-    printf("\nDigite \"ENTER\" para continuar: ");
+    printf("\nAperte \"ENTER\" para continuar: ");
     fgets(buf, sizeof(buf), stdin);
 }
 int lerLinha(char *buf, int tam){
@@ -406,4 +423,55 @@ int lerLinha(char *buf, int tam){
     removeN(buf);
     removerEspaco(buf);
     return 1;
+}
+void liberaJogo(jogoSumplete *jogo){
+    if(jogo->dicaCol != NULL)
+        free(jogo->dicaCol);
+    if(jogo->dicalin != NULL)
+        free(jogo->dicalin);
+    if(jogo->mask != NULL)
+        liberaMatriz(jogo->mask, jogo->tamMatriz);
+    if(jogo->tabuleiro != NULL)
+        liberaTabuleiro(jogo->tabuleiro, jogo->tamMatriz);
+    jogo->dicaCol = NULL;
+    jogo->dicalin = NULL;
+    jogo->mask = NULL;
+    jogo->tabuleiro = NULL;
+}
+int verificanArquivo(char *linha, int tam){
+    while(1){
+        printf("\nDigite o nome do save, ou \"sair\" para voltar: ");
+        if(linhaSegura(linha, tam) == 1){
+            removeN(linha);
+            removerEspaco(linha);
+            convertM(linha);
+            //se a linha for igual a sair, volta para o menu
+            if(strcmp(linha, "sair") == 0)
+                return 1;
+            else{
+                int i;
+                int tam = strlen(linha);
+                //procura a última ocorrencia de '.'
+                for(i = tam; i >=0; i--)
+                    if(linha[i] == '.')
+                        break;
+                // se não encontrar i acaba com -1
+                    if(i > 0){    
+                        char exten[5];
+                        //copia a extensão para outra string
+                        for(int j = 0; j < 4; j++)
+                            exten[j] = linha[i+j];
+                        exten[4] = '\0'; 
+                        if(strcmp(exten, ".txt") == 0)
+                            return 2;
+                        else
+                            printf("\n%sDIGITE A EXTENSÃO CORRETA!! .txt%s", ANSI_COLOR_RED, ANSI_RESET);
+                    }
+                    else
+                        printf("\n%sDIGITE A EXTENSÃO .txt%s", ANSI_COLOR_RED, ANSI_RESET);
+            }
+        }
+        else
+            printf("\n%sDIGITE UM NOME DE ARQUIVO VÁLIDO!!%s", ANSI_COLOR_RED, ANSI_RESET);
+    }
 }

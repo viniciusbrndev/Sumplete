@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 #include <ctype.h>
 #include "types.h"
 #include "game.h"
@@ -9,6 +10,7 @@
 
 
 int main(){
+    srand(time(NULL));
     jogoSumplete jogo;
     int menuInicial;
 
@@ -17,49 +19,56 @@ int main(){
     //temporizadores
     time_t inicio, fim;
     long tempoDeSessao;
-    srand(time(NULL));
-    printf("%sBEM VINDO AO SUMPLETE!!%s", ANSI_BG_COLOR_YELLOW, ANSI_RESET);
+    //inicializando os ptrs
+    jogo.dicaCol = NULL;
+    jogo.dicalin = NULL;
+    jogo.mask = NULL;
+    jogo.tabuleiro = NULL;
+
+    printf("%sBEM VINDO AO SUMPLETE!!%s", ANSI_COLOR_YELLOW, ANSI_RESET);
     while (1){
         imprimirMenuInicial();
         
         menuInicial = verificarCmdMenu();
         if(menuInicial == 1){
             int flag = 1;
-            char nivel;
-            printf("Digite o nome do jogador: ");
-            fgets(jogo.nome, sizeof(char) * 28,stdin);
-            removeN(jogo.nome);
-            removerEspaco(jogo.nome);
 
-            while(flag){
-                char linha[16];
-                printf("Digite o nivel de dificuldade (F,M,D): ");
-                lerLinha(linha, sizeof(linha));
-                nivel = (unsigned char)toupper(linha[0]);
-
-                if(nivel == 'F'){
-                    jogo.tamMatriz = 3;
-                    jogando = 1;
-                    inicio = time(NULL);
-                    flag = 0;
-                }
-                else if(nivel == 'M'){
-                    jogo.tamMatriz = 5;
-                    jogando = 1;
-                    inicio = time(NULL);
-                    flag = 0;
-                }
-                else if(nivel == 'D'){
-                    jogo.tamMatriz = 7;
-                    jogando = 1;
-                    inicio = time(NULL);
-                    flag = 0;
-                }
-                else{
-                    printf("\nDificuldade inválida!!\n");
-                }
-            }
+        printf("Digite o nome do jogador: ");
+        fgets(jogo.nome, sizeof(char) * 28,stdin);
+        removeN(jogo.nome);
+        removerEspaco(jogo.nome);
+        //se o jogo já estiver sido alocado antes libera antes de alocar
+        liberaJogo(&jogo);
             
+        while (flag){
+            char linha[16];
+            printf("\nDigite o nivel de dificuldade (F,M,D): ");
+            if (linhaSegura(linha, sizeof(linha)) != 1) {
+                printf("\nEntrada inválida! Tente novamente.\n");
+                continue;
+            }
+            removeN(linha);
+            removerEspaco(linha);
+            
+            char c = tolower(linha[0]); // pega só o 1º char
+            if (linha[1] != '\0') { 
+                // se digitou mais de 1 caractere 
+                printf("\nDigite apenas F, M ou D.\n");
+                continue;
+            }
+
+            if (c == 'f') jogo.tamMatriz = 3;
+            else if (c == 'm') jogo.tamMatriz = 5;
+            else if (c == 'd') jogo.tamMatriz = 7;
+            else{
+                printf("\n%sDificuldade inválida!!%s\n", ANSI_COLOR_RED, ANSI_RESET);
+                continue;
+            }
+
+            jogando = 1;
+            inicio = time(NULL);
+            flag = 0;
+        }
             //aloca o tabuleiro e os vetores dicaLin e dicaCol
             jogo.tabuleiro = alocaTabuleiro(jogo.tamMatriz);
             jogo.mask = alocaMatriz(jogo.tamMatriz);
@@ -71,17 +80,17 @@ int main(){
         //carrega um jogo salvo;
         else if(menuInicial == 2){
             char nomeArq[27];
-            printf("\n%sDIGITE O NOME DO ARQUIVO:%s\nUtilize a extenssão \".txt\" ao final do nome!", ANSI_COLOR_BLUE, ANSI_RESET);
-            fgets(nomeArq, sizeof(nomeArq), stdin);
-            removerEspaco(nomeArq);
-            removeN(nomeArq);
-            int v = carregarJogo(&jogo, nomeArq);
-            if(v){
-                jogando = 1;
-                inicio = time(NULL);
-            }
-            else{
-                printf("%s\nNÃO FOI POSSÍVEL CARREGAR O JOGO%s", ANSI_COLOR_RED, ANSI_RESET);
+            int arq = verificanArquivo(nomeArq, sizeof(nomeArq));
+            if(arq == 2){
+                int v = carregarJogo(&jogo, nomeArq);
+                if(v){
+                    jogando = 1;
+                    inicio = time(NULL);
+                }
+                else{
+                    printf("%s\nNÃO FOI POSSÍVEL CARREGAR O JOGO%s", ANSI_COLOR_RED, ANSI_RESET);
+                    esperaEnter();
+                }
             }
         }
         //exibe o ranking
@@ -97,25 +106,24 @@ int main(){
         //salva o jogo atual
         else if(menuInicial == 5){
             char nomeArq[27];
-            printf("\nDigite o nome do save: ");
-            fgets(nomeArq, sizeof(nomeArq), stdin);
-            removerEspaco(nomeArq);
-            removeN(nomeArq);
-            salvarJogo(jogo, nomeArq);
+            
+            int arq = verificanArquivo(nomeArq, sizeof(nomeArq));
+            if(arq == 2)
+                salvarJogo(jogo, nomeArq);
+            else if(arq == 1)
+                printf("\nVoltando para o menu...");
         }
         //encerra o jogo
         else if(menuInicial == 6){
             //libera a memória antes de fechar
-            liberaTabuleiro(jogo.tabuleiro, jogo.tamMatriz);
-            liberaMatriz(jogo.mask, jogo.tamMatriz);
-            free(jogo.dicaCol);
-            free(jogo.dicalin);
+            liberaJogo(&jogo);
 
             return 1;
         }
         else if(menuInicial == -1)
-            continue;
-        
+            printf("%s\nVOCÊ PRECISA DIGITAR UM COMANDO VÁLIDO!%s", ANSI_COLOR_RED, ANSI_RESET);
+        else
+            printf("%s\nCOMANDO INVÁLIDO%s", ANSI_COLOR_RED, ANSI_RESET);
         while(jogando){
             //posiçao removida ou adicionada
             int x;
@@ -158,9 +166,10 @@ int main(){
                 fim = time(NULL);
                 tempoDeSessao = difftime(fim, inicio);
                 jogo.tempoTotal += tempoDeSessao;
-
+                resolverJogo(&jogo);
+                imprimeTabela(jogo);
                 printf("%sVOCÊ VENCEU O SUMPLETE!!!%s", ANSI_COLOR_GREEN, ANSI_RESET);
-                printf("\nTempo gasto: %ld", jogo.tempoTotal);
+                printf("\nTempo gasto: %lds", jogo.tempoTotal);
                 //salva o ranking e  mostra a posição do jogador se estiver entre os 10 melhores
                 tamRank = salvarRanking(jogo, rank);
                 int posPlayer = procuraPosJogador(jogo, rank, tamRank);

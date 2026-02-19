@@ -10,6 +10,7 @@
     void convertM(char *palavra);
     void removeN(char *palavra);
     void limparBuffer();
+    int linhaSegura(char *linha, int tam);
     int verificarCmdMenu();
     void removerEspaco(char *comando);
     void copiaComando(char *comando, char *saida);
@@ -30,4 +31,6 @@
     int contaRemovidos(int **mask, int tamMatriz);
     void esperaEnter();
     int lerLinha(char *buf, int tam);
+    void liberaJogo(jogoSumplete *jogo);
+    int verificanArquivo(char *linha, int tam);
 #endif // GAME_H

@@ -26,20 +26,25 @@ int salvarRanking(jogoSumplete jogo, PosRanking *rank){
     if (arqRank != NULL){
         n = (int)fread(rank, sizeof(PosRanking), MAX, arqRank);
         fclose(arqRank);
-        if (n < 0) n = 0;
-        if (n > MAX) n = MAX;
+        if (n < 0) 
+            n = 0;
+        if (n > MAX) 
+            n = MAX;
     }
 
-    // coloca o novo jogador na posição extra (rank[n] é seguro: n <= MAX)
+    // coloca o novo jogador na posição extra
     memset(&rank[n], 0, sizeof(PosRanking));
     strncpy(rank[n].nome, jogo.nome, sizeof(rank[n].nome) - 1);
     rank[n].tempoTotal = jogo.tempoTotal;
 
-    int tamOrdenar = n + 1;         // agora tem 1 a mais (até 11)
+    int tamOrdenar = n + 1; // agora tem 1 a mais (até 11)
     ordenaRank(rank, tamOrdenar);
-
+    int tamSalvar;
     // mantém só 10 para salvar
-    int tamSalvar = (tamOrdenar > MAX) ? MAX : tamOrdenar;
+    if(tamOrdenar > MAX)
+        tamSalvar = MAX;
+    else
+        tamSalvar = tamOrdenar;
 
     arqRank = fopen("ranking.dat", "wb");
     if (arqRank == NULL) return 0;
