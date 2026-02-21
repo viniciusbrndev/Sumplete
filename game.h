@@ -1,4 +1,5 @@
-#if !defined(GAME_H)
+// Vinícius Brandão de S. Oliveira Matrícula 25.2.4154
+#ifndef GAME_H
 #define GAME_H
 
 
@@ -30,7 +31,6 @@
     void resolverJogo(jogoSumplete *jogo);
     int contaRemovidos(int **mask, int tamMatriz);
     void esperaEnter();
-    int lerLinha(char *buf, int tam);
     void liberaJogo(jogoSumplete *jogo);
     int verificanArquivo(char *linha, int tam);
 #endif // GAME_H

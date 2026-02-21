@@ -1,3 +1,5 @@
+// Vinícius Brandão de S. Oliveira Matrícula 25.2.4154
+// Projeto prático da disciplina BCC201 -> UFOP Professor Puca Huachi
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -14,7 +16,7 @@ int main(){
     jogoSumplete jogo;
     int menuInicial;
 
-    int jogando = 0, tamRank = 0;
+    int jogando = 0, tamRank = 0, jogoIniciado = 0;
     PosRanking rank[11];
     //temporizadores
     time_t inicio, fim;
@@ -32,7 +34,9 @@ int main(){
         menuInicial = verificarCmdMenu();
         if(menuInicial == 1){
             int flag = 1;
-
+        
+        jogoIniciado  = 1;
+        
         printf("Digite o nome do jogador: ");
         fgets(jogo.nome, sizeof(char) * 28,stdin);
         removeN(jogo.nome);
@@ -79,17 +83,24 @@ int main(){
         }
         //carrega um jogo salvo;
         else if(menuInicial == 2){
+            jogoIniciado = 1;
+            int flagCarregar = 1;
             char nomeArq[27];
-            int arq = verificanArquivo(nomeArq, sizeof(nomeArq));
-            if(arq == 2){
-                int v = carregarJogo(&jogo, nomeArq);
-                if(v){
-                    jogando = 1;
-                    inicio = time(NULL);
-                }
-                else{
-                    printf("%s\nNÃO FOI POSSÍVEL CARREGAR O JOGO%s", ANSI_COLOR_RED, ANSI_RESET);
-                    esperaEnter();
+            while(flagCarregar){
+                int arq = verificanArquivo(nomeArq, sizeof(nomeArq));
+                if(arq == 1)
+                    break;
+                if(arq == 2){
+                    int v = carregarJogo(&jogo, nomeArq);
+                    if(v){
+                        jogando = 1;
+                        inicio = time(NULL);
+                        flagCarregar = 0;
+                    }
+                    else{
+                        printf("%s\nNÃO FOI POSSÍVEL CARREGAR O JOGO%s", ANSI_COLOR_RED, ANSI_RESET);
+                        continue;
+                    }
                 }
             }
         }
@@ -105,13 +116,17 @@ int main(){
         }
         //salva o jogo atual
         else if(menuInicial == 5){
-            char nomeArq[27];
+            if(jogoIniciado){
+                char nomeArq[27];
             
-            int arq = verificanArquivo(nomeArq, sizeof(nomeArq));
-            if(arq == 2)
-                salvarJogo(jogo, nomeArq);
-            else if(arq == 1)
-                printf("\nVoltando para o menu...");
+                int arq = verificanArquivo(nomeArq, sizeof(nomeArq));
+                if(arq == 2)
+                    salvarJogo(jogo, nomeArq);
+                else if(arq == 1)
+                    printf("\nVoltando para o menu...");
+            }
+            else
+                printf("\n%sVOCÊ NÃO PODE SALVAR SEM TER INICIADO UM NOVO JOGO OU CARREGADO UM ANTERIOR!!%s", ANSI_COLOR_RED, ANSI_RESET);
         }
         //encerra o jogo
         else if(menuInicial == 6){

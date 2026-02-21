@@ -1,3 +1,4 @@
+// Vinícius Brandão de S. Oliveira Matrícula 25.2.4154
 //Bibliotecas
 #include "types.h"
 #include "game.h"
@@ -415,14 +416,7 @@ void esperaEnter(){
     char buf[64];
 
     printf("\nAperte \"ENTER\" para continuar: ");
-    fgets(buf, sizeof(buf), stdin);
-}
-int lerLinha(char *buf, int tam){
-    if (!fgets(buf, tam, stdin)) 
-        return 0;
-    removeN(buf);
-    removerEspaco(buf);
-    return 1;
+    linhaSegura(buf, sizeof(buf));
 }
 void liberaJogo(jogoSumplete *jogo){
     if(jogo->dicaCol != NULL)
@@ -442,15 +436,17 @@ int verificanArquivo(char *linha, int tam){
     while(1){
         printf("\nDigite o nome do save, ou \"sair\" para voltar: ");
         if(linhaSegura(linha, tam) == 1){
+            int tam = strlen(linha);
             removeN(linha);
             removerEspaco(linha);
-            convertM(linha);
-            //se a linha for igual a sair, volta para o menu
-            if(strcmp(linha, "sair") == 0)
-                return 1;
+            //se a linha for igual a "sair", volta para o menu inicial
+            if(tam == 4){
+                convertM(linha);
+                if(strcmp(linha, "sair") == 0)
+                    return 1;
+                }
             else{
                 int i;
-                int tam = strlen(linha);
                 //procura a última ocorrencia de '.'
                 for(i = tam; i >=0; i--)
                     if(linha[i] == '.')

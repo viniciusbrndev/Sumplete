@@ -1,3 +1,4 @@
+// Vinícius Brandão de S. Oliveira Matrícula 25.2.4154
 #include "types.h"
 #include "ranking.h"
 #include "game.h"
@@ -26,7 +27,7 @@ int salvarRanking(jogoSumplete jogo, PosRanking *rank){
     if (arqRank != NULL){
         n = (int)fread(rank, sizeof(PosRanking), MAX, arqRank);
         fclose(arqRank);
-        if (n < 0) 
+        if (n <= 0) 
             n = 0;
         if (n > MAX) 
             n = MAX;

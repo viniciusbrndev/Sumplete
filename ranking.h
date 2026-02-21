@@ -1,4 +1,5 @@
-#if !defined(RANKING_H)
+// Vinícius Brandão de S. Oliveira Matrícula 25.2.4154
+#ifndef RANKING_H
 #define RANKING_H
 #define MAX 10
 
