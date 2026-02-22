@@ -5,7 +5,9 @@
 
 
 void ordenaRank(PosRanking *rank, int tam);
-int salvarRanking(jogoSumplete jogo, PosRanking *rank);
+int carregaRanking(PosRanking *rank);
+int insereJogadorRank(jogoSumplete jogo, PosRanking *rank, int tam);
+int salvarRanking(PosRanking *rank, int tamSalvar);
 int procuraPosJogador(jogoSumplete jogo, PosRanking *rank, int tam);
 void imprimeRank(PosRanking *vet, int tam);
 void mostrarTutorial();

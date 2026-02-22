@@ -19,20 +19,24 @@ void ordenaRank(PosRanking *rank, int tam){
         }
     }
 }
-int salvarRanking(jogoSumplete jogo, PosRanking *rank){
+int carregaRanking(PosRanking *rank){
     int n = 0;
 
     // lê até 10 do arquivo
-    FILE *arqRank = fopen("ranking.dat", "rb");
+    FILE *arqRank = fopen("sumplete.rnk.dat", "rb");
     if (arqRank != NULL){
         n = (int)fread(rank, sizeof(PosRanking), MAX, arqRank);
         fclose(arqRank);
-        if (n <= 0) 
+        if (n < 0) // se n leu nenhuma posição continua como 0 o tamanho do rank
             n = 0;
-        if (n > MAX) 
+        if (n > MAX) // se mais que 10 corta, caso aconteça um erro e o arquivo tenha sido salvo com mais de 10 pos
             n = MAX;
     }
 
+    return n;
+}
+int insereJogadorRank(jogoSumplete jogo, PosRanking *rank, int tam){
+    int n = tam;
     // coloca o novo jogador na posição extra
     memset(&rank[n], 0, sizeof(PosRanking));
     strncpy(rank[n].nome, jogo.nome, sizeof(rank[n].nome) - 1);
@@ -41,13 +45,17 @@ int salvarRanking(jogoSumplete jogo, PosRanking *rank){
     int tamOrdenar = n + 1; // agora tem 1 a mais (até 11)
     ordenaRank(rank, tamOrdenar);
     int tamSalvar;
-    // mantém só 10 para salvar
+    // se possuir mais de 10 pos no vetor elimina a última pos na hora de salvar
     if(tamOrdenar > MAX)
         tamSalvar = MAX;
     else
         tamSalvar = tamOrdenar;
+    return tamSalvar;
+}
+int salvarRanking(PosRanking *rank, int tamSalvar){
+    FILE* arqRank;
 
-    arqRank = fopen("ranking.dat", "wb");
+    arqRank = fopen("sumplete.rnk.dat", "wb");
     if (arqRank == NULL) return 0;
 
     fwrite(rank, sizeof(PosRanking), tamSalvar, arqRank);
@@ -64,7 +72,7 @@ int procuraPosJogador(jogoSumplete jogo, PosRanking *rank, int tam){
     return 0;
 }
 void imprimeRank(PosRanking *vet, int tam){
-    printf("\n%sTOP PLAYERS!!%s",ANSI_COLOR_YELLOW, ANSI_RESET );
+    printf("\n%sTOP PLAYERS!!\n%s",ANSI_COLOR_YELLOW, ANSI_RESET );
     int n;
     if(tam < 5)
         n = tam;
@@ -78,6 +86,14 @@ void mostrarTutorial(){
     printf("%s", ANSI_COLOR_BLUE);
     printf("\n==================== TUTORIAL - JOGO SUMPLETE ================\n");
     printf("%s", ANSI_RESET);
+    printf("%s\nO JOGO:%s\n", ANSI_COLOR_BLUE, ANSI_RESET);
+    printf("Sumplete é um jogo de lógica numérica criado originalmente por meio \n");
+    printf("de interações com o ChatGPT. Nele, o jogador recebe uma grade de\n");
+    printf("números e deve apagar alguns deles para que a soma dos valores\n");
+    printf("restantes em cada linha e coluna corresponda aos totais\n");
+    printf("restantes em cada linha e coluna corresponda aos totais indicados \n");
+    printf("nas bordas da grade.");
+    printf("\n---------------------------------------------------------------\n");
 
     printf("%s\nOBJETIVO:%s\n", ANSI_COLOR_BLUE, ANSI_RESET);
     printf("Remova numeros do tabuleiro de forma que a soma dos valores\n");

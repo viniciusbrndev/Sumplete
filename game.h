@@ -33,4 +33,5 @@
     void esperaEnter();
     void liberaJogo(jogoSumplete *jogo);
     int verificanArquivo(char *linha, int tam);
+    int verificaNomeValido(char *nome, int tam);
 #endif // GAME_H

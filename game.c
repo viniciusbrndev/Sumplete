@@ -415,7 +415,7 @@ int contaRemovidos(int **mask, int tamMatriz){
 void esperaEnter(){
     char buf[64];
 
-    printf("\nAperte \"ENTER\" para continuar: ");
+    printf("\nAperte qualquer tecla para continuar: ");
     linhaSegura(buf, sizeof(buf));
 }
 void liberaJogo(jogoSumplete *jogo){
@@ -436,10 +436,10 @@ int verificanArquivo(char *linha, int tam){
     while(1){
         printf("\nDigite o nome do save, ou \"sair\" para voltar: ");
         if(linhaSegura(linha, tam) == 1){
-            int tam = strlen(linha);
             removeN(linha);
             removerEspaco(linha);
             //se a linha for igual a "sair", volta para o menu inicial
+            int tam = strlen(linha);
             if(tam == 4){
                 convertM(linha);
                 if(strcmp(linha, "sair") == 0)
@@ -470,4 +470,26 @@ int verificanArquivo(char *linha, int tam){
         else
             printf("\n%sDIGITE UM NOME DE ARQUIVO VÁLIDO!!%s", ANSI_COLOR_RED, ANSI_RESET);
     }
+}
+int verificaNomeValido(char *nome, int tam){
+    int a = linhaSegura(nome,tam);
+    if(a == 1){
+        removeN(nome);
+        removerEspaco(nome);
+        int n = strlen(nome);
+        if(n == 4){
+            convertM(nome);
+            if(strcmp(nome, "sair") == 0)
+                return 1;
+            else
+                return 2;
+        }
+        if(strchr(nome, ' '))
+            printf("%s\nSeu nome NÃO PODE conter espaços%s", ANSI_COLOR_RED, ANSI_RESET);
+        else
+            return 2;
+    }
+    else
+        printf("%s\nVOCÊ NÃO DEVE DIGITAR MAIS QUE 27 CARACTERES!!!%s", ANSI_COLOR_RED, ANSI_RESET);
+    return 0;
 }

@@ -22,10 +22,13 @@ int main(){
     time_t inicio, fim;
     long tempoDeSessao;
     //inicializando os ptrs
+    jogo.nome[0] = '\0';
     jogo.dicaCol = NULL;
     jogo.dicalin = NULL;
     jogo.mask = NULL;
     jogo.tabuleiro = NULL;
+    //abrindo o rank
+    tamRank = carregaRanking(rank);
 
     printf("%sBEM VINDO AO SUMPLETE!!%s", ANSI_COLOR_YELLOW, ANSI_RESET);
     while (1){
@@ -34,52 +37,59 @@ int main(){
         menuInicial = verificarCmdMenu();
         if(menuInicial == 1){
             int flag = 1;
-        
-        jogoIniciado  = 1;
-        
-        printf("Digite o nome do jogador: ");
-        fgets(jogo.nome, sizeof(char) * 28,stdin);
-        removeN(jogo.nome);
-        removerEspaco(jogo.nome);
-        //se o jogo já estiver sido alocado antes libera antes de alocar
-        liberaJogo(&jogo);
             
-        while (flag){
-            char linha[16];
-            printf("\nDigite o nivel de dificuldade (F,M,D): ");
-            if (linhaSegura(linha, sizeof(linha)) != 1) {
-                printf("\nEntrada inválida! Tente novamente.\n");
-                continue;
+            while(1){
+                printf("\nDigite o nome do jogador, ou \"sair\" para voltar ao menu: ");
+                int a = verificaNomeValido(jogo.nome, sizeof(jogo.nome));
+                if(a == 1){
+                    jogo.nome[0] = '\0';
+                    break;
+                }
+                else if(a == 2)
+                    break;
             }
-            removeN(linha);
-            removerEspaco(linha);
-            
-            char c = tolower(linha[0]); // pega só o 1º char
-            if (linha[1] != '\0') { 
-                // se digitou mais de 1 caractere 
-                printf("\nDigite apenas F, M ou D.\n");
-                continue;
-            }
+            //só continua criando um novo jogo se o usuário digitar um nome válido
+            if(jogo.nome[0] != '\0'){    
+                jogoIniciado  = 1;
+                //se o jogo já estiver sido alocado antes libera antes de alocar
+                liberaJogo(&jogo);
+                    
+                while (flag){
+                    char linha[16];
+                    printf("\nDigite o nivel de dificuldade (F,M,D): ");
+                    if (linhaSegura(linha, sizeof(linha)) != 1) {
+                        printf("\nEntrada inválida! Tente novamente.\n");
+                        continue;
+                    }
+                    removeN(linha);
+                    removerEspaco(linha);
+                    
+                    char c = tolower(linha[0]); // pega só o 1º char
+                    if (linha[1] != '\0') { 
+                        // se digitou mais de 1 caractere 
+                        printf("\nDigite apenas F, M ou D.\n");
+                        continue;
+                    }
 
-            if (c == 'f') jogo.tamMatriz = 3;
-            else if (c == 'm') jogo.tamMatriz = 5;
-            else if (c == 'd') jogo.tamMatriz = 7;
-            else{
-                printf("\n%sDificuldade inválida!!%s\n", ANSI_COLOR_RED, ANSI_RESET);
-                continue;
-            }
+                    if (c == 'f') jogo.tamMatriz = 3;
+                    else if (c == 'm') jogo.tamMatriz = 5;
+                    else if (c == 'd') jogo.tamMatriz = 7;
+                    else{
+                        printf("\n%sDificuldade inválida!!%s\n", ANSI_COLOR_RED, ANSI_RESET);
+                        continue;
+                    }
 
-            jogando = 1;
-            inicio = time(NULL);
-            flag = 0;
-        }
-            //aloca o tabuleiro e os vetores dicaLin e dicaCol
-            jogo.tabuleiro = alocaTabuleiro(jogo.tamMatriz);
-            jogo.mask = alocaMatriz(jogo.tamMatriz);
-            jogo.dicalin = alocaVetor(jogo.tamMatriz);
-            jogo.dicaCol = alocaVetor(jogo.tamMatriz);
-            //gera as posições aleatoriamente e as dicas
-            geraMatrizeDica(&jogo);
+                    jogando = 1;
+                    inicio = time(NULL);
+                    flag = 0;
+                }
+                    //aloca o tabuleiro e os vetores dicaLin e dicaCol
+                    jogo.tabuleiro = alocaTabuleiro(jogo.tamMatriz);
+                    jogo.mask = alocaMatriz(jogo.tamMatriz);
+                    jogo.dicalin = alocaVetor(jogo.tamMatriz);
+                    jogo.dicaCol = alocaVetor(jogo.tamMatriz);
+                    //gera as posições aleatoriamente e as dicas
+                    geraMatrizeDica(&jogo);}
         }
         //carrega um jogo salvo;
         else if(menuInicial == 2){
@@ -130,6 +140,7 @@ int main(){
         }
         //encerra o jogo
         else if(menuInicial == 6){
+            salvarRanking(rank, tamRank);
             //libera a memória antes de fechar
             liberaJogo(&jogo);
 
@@ -186,7 +197,7 @@ int main(){
                 printf("%sVOCÊ VENCEU O SUMPLETE!!!%s", ANSI_COLOR_GREEN, ANSI_RESET);
                 printf("\nTempo gasto: %lds", jogo.tempoTotal);
                 //salva o ranking e  mostra a posição do jogador se estiver entre os 10 melhores
-                tamRank = salvarRanking(jogo, rank);
+                tamRank = insereJogadorRank(jogo, rank, tamRank);
                 int posPlayer = procuraPosJogador(jogo, rank, tamRank);
                 if(posPlayer)
                     printf("\nSua posição: %s%d lugar%s",ANSI_COLOR_BLUE, posPlayer, ANSI_RESET);
