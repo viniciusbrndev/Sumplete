@@ -1,4 +1,4 @@
-// Vinícius Brandão de S. Oliveira Matrícula 25.2.4154
+
 #ifndef TYPES_H
 #define TYPES_H
 
@@ -76,12 +76,12 @@ typedef struct{
     int *dicalin;
     int *dicaCol;
 
-    long tempoTotal;
+    int tempoTotal;
 }jogoSumplete;
 
 typedef struct{
     char nome[28];
-    long tempoTotal;
+    int tempoTotal;
 }PosRanking;
 
 

@@ -1,4 +1,4 @@
-// Vinícius Brandão de S. Oliveira Matrícula 25.2.4154
+// Vinícius Brandão de S. Oliveira 
 // Projeto prático da disciplina BCC201 -> UFOP Professor Puca Huachi
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +16,7 @@ int main(){
     jogoSumplete jogo;
     int menuInicial;
 
-    int jogando = 0, tamRank = 0, jogoIniciado = 0;
+    int jogando = 0, tamRank = 0, jogoIniciado = 0, jogoSalvo = 0;
     PosRanking rank[11];
     //temporizadores
     time_t inicio, fim;
@@ -51,6 +51,7 @@ int main(){
             //só continua criando um novo jogo se o usuário digitar um nome válido
             if(jogo.nome[0] != '\0'){    
                 jogoIniciado  = 1;
+                jogoSalvo = 1;
                 //se o jogo já estiver sido alocado antes libera antes de alocar
                 liberaJogo(&jogo);
                     
@@ -140,11 +141,39 @@ int main(){
         }
         //encerra o jogo
         else if(menuInicial == 6){
+            if(jogoSalvo){
+                char resposta[5];
+                printf("\nDeseja salvar o jogo atual antes de sair? SIM/NAO ");
+                linhaSegura(resposta, sizeof(resposta));
+                while(1){
+                    int z = verificaSimNao(resposta);
+                    if(z == 0)
+                        continue;
+                    else if(z == 1){
+                        char nomeArq[27];
+                        jogoSalvo = 0;
+                        int arq = verificanArquivo(nomeArq, sizeof(nomeArq));
+                        if(arq == 2)
+                            salvarJogo(jogo, nomeArq);
+                        else if(arq == 1)
+                            printf("\nVoltando para o menu...");
+                        break;
+                    }
+                    else if(z == 2)
+                        break;
+                }
+            }
             salvarRanking(rank, tamRank);
             //libera a memória antes de fechar
             liberaJogo(&jogo);
 
             return 1;
+        }
+        else if(menuInicial == 7){
+            if(jogoIniciado)
+                jogando = 1;
+            else
+                printf("%s\nPARA CONTINUAR VOCÊ PRECISA TER INICIADO UM JOGO%s", ANSI_COLOR_RED, ANSI_RESET);
         }
         else if(menuInicial == -1)
             printf("%s\nVOCÊ PRECISA DIGITAR UM COMANDO VÁLIDO!%s", ANSI_COLOR_RED, ANSI_RESET);
@@ -156,17 +185,20 @@ int main(){
             int y;
             //impressão do tabuleiro
             imprimeTabela(jogo);
+            printf("-> \"adicionar\" <lin> <col>\n-> \"remover\" <lin> <col>\n-> \"resolver\"\n-> \"dica\"\n-> \"sair\"\n");
             printf("\n%s digite o comando: ", jogo.nome);
             //funçao retorna um int com a acao desejada e a posição x,y.
             int acaoJogo = verificaComando(&x, &y); 
 
             //REMOVER
             if(acaoJogo == 1){
-                removerPos(jogo.tabuleiro, x, y, jogo.tamMatriz);
+                if(removerPos(jogo.tabuleiro, x, y, jogo.tamMatriz) == 0)
+                    printf("\n%sPOSIÇÃO DO TABULEIRO  INVÁLIDA\n%s", ANSI_COLOR_RED, ANSI_RESET);
             }
                 //ADICIONAR
             else if(acaoJogo == 2){
-                adicionarPos(jogo.tabuleiro, x, y, jogo.tamMatriz);
+                if(adicionarPos(jogo.tabuleiro, x, y, jogo.tamMatriz) == 0)
+                    printf("\n%sPOSIÇÃO DO TABULEIRO  INVÁLIDA\n%s", ANSI_COLOR_RED, ANSI_RESET);
             }
             //DICA
             else if(acaoJogo == 3){
@@ -195,14 +227,18 @@ int main(){
                 resolverJogo(&jogo);
                 imprimeTabela(jogo);
                 printf("%sVOCÊ VENCEU O SUMPLETE!!!%s", ANSI_COLOR_GREEN, ANSI_RESET);
-                printf("\nTempo gasto: %lds", jogo.tempoTotal);
+                printf("\nTempo gasto: %ds", jogo.tempoTotal);
                 //salva o ranking e  mostra a posição do jogador se estiver entre os 10 melhores
-                tamRank = insereJogadorRank(jogo, rank, tamRank);
-                int posPlayer = procuraPosJogador(jogo, rank, tamRank);
-                if(posPlayer)
-                    printf("\nSua posição: %s%d lugar%s",ANSI_COLOR_BLUE, posPlayer, ANSI_RESET);
+                if(verificaOcorreencia(jogo, rank, tamRank)){
+                    tamRank = insereJogadorRank(jogo, rank, tamRank);
+                    int posPlayer = procuraPosJogador(jogo, rank, tamRank);
+                    if(posPlayer)
+                        printf("\nSua posição: %s%d lugar%s",ANSI_COLOR_BLUE, posPlayer, ANSI_RESET);
+                    else
+                        printf("\nVocê ficou fora do TOP 10 :(");
+                }
                 else
-                    printf("\nVocê ficou fora do TOP 10 :(");
+                    printf("\n%sJÁ EXISTE UM JOGADOR NO RANKING COM SEU NOME, \nSUA POSIÇÃO NÃO FOI CONSIDERADA%s", ANSI_COLOR_RED, ANSI_RESET);
                 
                 jogando = 0;
                 esperaEnter();

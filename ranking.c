@@ -1,4 +1,4 @@
-// Vinícius Brandão de S. Oliveira Matrícula 25.2.4154
+
 #include "types.h"
 #include "ranking.h"
 #include "game.h"
@@ -21,24 +21,32 @@ void ordenaRank(PosRanking *rank, int tam){
 }
 int carregaRanking(PosRanking *rank){
     int n = 0;
+    FILE *arqRank = fopen("sumplete.rnk", "r");
 
     // lê até 10 do arquivo
-    FILE *arqRank = fopen("sumplete.rnk.dat", "rb");
     if (arqRank != NULL){
-        n = (int)fread(rank, sizeof(PosRanking), MAX, arqRank);
-        fclose(arqRank);
+        // le as linhas e conta a quantidade lida
+        while(n < MAX && fscanf(arqRank, "%s %d", rank[n].nome, &rank[n].tempoTotal) == 2)
+            n++;
+        removerEspaco(rank[n].nome);
+        removeN(rank[n].nome);
         if (n < 0) // se n leu nenhuma posição continua como 0 o tamanho do rank
             n = 0;
         if (n > MAX) // se mais que 10 corta, caso aconteça um erro e o arquivo tenha sido salvo com mais de 10 pos
             n = MAX;
+        
+        fclose(arqRank);
+        return n;
     }
 
     return n;
 }
 int insereJogadorRank(jogoSumplete jogo, PosRanking *rank, int tam){
     int n = tam;
+    //limpa as posições do vetor de rank
+    memset(&rank[n], 0, sizeof(PosRanking)); 
+    
     // coloca o novo jogador na posição extra
-    memset(&rank[n], 0, sizeof(PosRanking));
     strncpy(rank[n].nome, jogo.nome, sizeof(rank[n].nome) - 1);
     rank[n].tempoTotal = jogo.tempoTotal;
 
@@ -55,10 +63,12 @@ int insereJogadorRank(jogoSumplete jogo, PosRanking *rank, int tam){
 int salvarRanking(PosRanking *rank, int tamSalvar){
     FILE* arqRank;
 
-    arqRank = fopen("sumplete.rnk.dat", "wb");
+    arqRank = fopen("sumplete.rnk", "w");
     if (arqRank == NULL) return 0;
-
-    fwrite(rank, sizeof(PosRanking), tamSalvar, arqRank);
+    for(int i = 0; i < tamSalvar; i++){
+        fprintf(arqRank,"%s %d\n", rank[i].nome, rank[i].tempoTotal);
+    }
+    
     fclose(arqRank);
 
     return tamSalvar;
@@ -74,13 +84,21 @@ int procuraPosJogador(jogoSumplete jogo, PosRanking *rank, int tam){
 void imprimeRank(PosRanking *vet, int tam){
     printf("\n%sTOP PLAYERS!!\n%s",ANSI_COLOR_YELLOW, ANSI_RESET );
     int n;
-    if(tam < 5)
+    if(tam < MAX)
         n = tam;
     else
-        n = 5;
+        n = MAX;
     for(int i = 0; i < n; i++){
-        printf("\n%s%d%s %s %ld", ANSI_COLOR_CYAN,i+1,ANSI_RESET, vet[i].nome, vet[i].tempoTotal);
+        printf("\n%s%d%s %s %ds", ANSI_COLOR_CYAN,i+1,ANSI_RESET, vet[i].nome, vet[i].tempoTotal);
     }
+}
+int verificaOcorreencia(jogoSumplete jogo, PosRanking *rank, int tamRank){
+    
+    for(int i = 0; i < tamRank; i++){
+        if(strcmp(jogo.nome, rank[i].nome) == 0)
+            return 0;
+    }
+    return 1;
 }
 void mostrarTutorial(){
     printf("%s", ANSI_COLOR_BLUE);
@@ -141,8 +159,6 @@ void mostrarTutorial(){
 
     printf("  %ssair%s\n", ANSI_COLOR_BLUE, ANSI_RESET);
     printf("      Volta ao menu principal\n\n");
-
-    printf("Obs: LIN e COL iniciam em 0.\n");
 
     printf("\n---------------------------------------------------------------\n");
 

@@ -1,4 +1,4 @@
-// Vinícius Brandão de S. Oliveira Matrícula 25.2.4154
+
 #include "types.h"
 #include "archives.h"
 #include "game.h"
@@ -53,7 +53,7 @@ int salvarJogo(jogoSumplete jogo, char *nomeArq){
     for(int i = 0; i < jogo.tamMatriz; i++){
         for(int j = 0; j < jogo.tamMatriz; j++){
             if(jogo.mask[i][j] == 0)
-                fprintf(save, "%d %d\n", i, j);
+                fprintf(save, "%d %d\n", i+1, j+1);
         }
     }
     //conta as ações feitas pelo usuário e salva no arquivo
@@ -64,15 +64,15 @@ int salvarJogo(jogoSumplete jogo, char *nomeArq){
     for(int i = 0; i < jogo.tamMatriz; i++){
         for(int j = 0; j < jogo.tamMatriz; j++){
             if(jogo.tabuleiro[i][j].estado == 2){
-                fprintf(save, "r %d %d\n", i, j);
+                fprintf(save, "r %d %d\n", i+1, j+1);
             }
             else if(jogo.tabuleiro[i][j].estado == 1){
-                fprintf(save, "a %d %d\n", i, j);
+                fprintf(save, "a %d %d\n", i+1, j+1);
             }
         }
     }
     fprintf(save, "%s", jogo.nome);
-    fprintf(save, "\n%ld", jogo.tempoTotal);
+    fprintf(save, "\n%d", jogo.tempoTotal);
     fclose(save);
     printf("\n%sJOGO SALVO COM SUCESSO!%s", ANSI_COLOR_GREEN, ANSI_RESET);
     esperaEnter();
@@ -115,7 +115,7 @@ int carregarJogo(jogoSumplete *jogo, char *nomeArq){
     fscanf(arqSalvo, "%d", &n);
     for(int i = 0; i < n; i++){
         fscanf(arqSalvo, "%d %d", &lin, &col);
-        jogo->mask[lin][col] = 0;
+        jogo->mask[lin-1][col-1] = 0;
     }
     //le o número de movimentos do usuário e escreve o estado da célula com base em "r" e "a"
     int acoes;
@@ -124,16 +124,17 @@ int carregarJogo(jogoSumplete *jogo, char *nomeArq){
     for(int i = 0; i < acoes; i++){
         fscanf(arqSalvo, " %c %d %d", &estado, &lin, &col);
         if(estado == 'r')
-            jogo->tabuleiro[lin][col].estado = REMOVIDA;
+            jogo->tabuleiro[lin-1][col-1].estado = REMOVIDA;
         else if(estado == 'a')
-            jogo->tabuleiro[lin][col].estado = ATIVA;
+            jogo->tabuleiro[lin-1][col-1].estado = ATIVA;
     }
+
     char lixo[256];
-    fgets(lixo, sizeof(lixo), arqSalvo);
+    fgets(lixo, sizeof(lixo), arqSalvo);// le os \n deixados
     //lê o nome e remove o possível \n 
     fgets(jogo->nome, sizeof(jogo->nome), arqSalvo);
     removeN(jogo->nome);
-    fscanf(arqSalvo, "%ld", &jogo->tempoTotal);
+    fscanf(arqSalvo, "%d", &jogo->tempoTotal);
     //fecha o arquivo
     fclose(arqSalvo);
     return 1;

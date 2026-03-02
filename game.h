@@ -1,4 +1,4 @@
-// Vinícius Brandão de S. Oliveira Matrícula 25.2.4154
+
 #ifndef GAME_H
 #define GAME_H
 
@@ -23,8 +23,8 @@
     void liberaMatriz(int **matriz, int tam);
     //--------------------------------------------
     int verificaComando(int *x, int *y);
-    void adicionarPos(Celula **jogo, int lin, int col, int tam);
-    void removerPos(Celula **jogo, int lin, int col, int tam);
+    int adicionarPos(Celula **jogo, int lin, int col, int tam);
+    int removerPos(Celula **jogo, int lin, int col, int tam);
     int verificaVitoria(jogoSumplete jogo);
     void geraMatrizeDica(jogoSumplete *jogo);
     void mostrarDica(jogoSumplete *jogo);
@@ -34,4 +34,5 @@
     void liberaJogo(jogoSumplete *jogo);
     int verificanArquivo(char *linha, int tam);
     int verificaNomeValido(char *nome, int tam);
+    int verificaSimNao(char *resposta);
 #endif // GAME_H

@@ -15,12 +15,13 @@ void imprimirMenuInicial(){
     printf("%s\n", ANSI_COLOR_BLUE);
     printf("\n╔═════════════ MENU PRINCIPAL ════════════════╗\n");
     printf("║                                             ║\n");
-    printf("║   [novo]     -> Iniciar um novo jogo        ║\n");
-    printf("║   [carregar] -> Carregar jogo salvo         ║\n");
-    printf("║   [exibir]   -> Exibir ranking              ║\n");
-    printf("║   [ajuda]    -> Mostrar comandos            ║\n");
-    printf("║   [salvar]   -> Salva o jogo atual          ║\n");
-    printf("║   [sair]     -> Encerrar o jogo             ║\n");
+    printf("║   [novo]       -> Iniciar um novo jogo      ║\n");
+    printf("║   [carregar]   -> Carregar jogo salvo       ║\n");
+    printf("║   [exibir]     -> Exibir ranking            ║\n");
+    printf("║   [ajuda]      -> Mostrar comandos          ║\n");
+    printf("║   [salvar]     -> Salva o jogo atual        ║\n");
+    printf("║   [sair]       -> Encerrar o jogo           ║\n");
+    printf("║   [continuar]  -> Volta ao jogo             ║\n");
     printf("║                                             ║\n");
     printf("╚═════════════════════════════════════════════╝\n");
     printf("%s", ANSI_RESET);
@@ -47,7 +48,13 @@ int somaColReal(jogoSumplete jogo, int poscol){
 
 void imprimeTabela(jogoSumplete jogo){
     int n = jogo.tamMatriz; // tamanho real (valores 1..9)
-
+    //imprimindo as Numerações do tabuleiro
+    printf("   ");
+    for(int i = 0; i < n; i++){
+        printf("%s%2d%s  ",ANSI_COLOR_BLUE, i+1, ANSI_RESET);
+    }
+    printf("\n");
+    printf("  ");
     // -------- TOPO --------
     printf("%s", TAB_TL);
     for(int i = 0; i < n-1; i++){
@@ -57,6 +64,8 @@ void imprimeTabela(jogoSumplete jogo){
 
     // -------- CORPO --------
     for(int k = 0; k < n; k++){
+        //num da LIN
+        printf("%s%d %s", ANSI_COLOR_BLUE, k+1, ANSI_RESET);
 
         for(int i = 0; i < n; i++){
             int v = jogo.tabuleiro[k][i].valor;
@@ -80,7 +89,7 @@ void imprimeTabela(jogoSumplete jogo){
         else{
             printf("%s%s %d%s\n", TAB_VER, ANSI_COLOR_GRAY, jogo.dicalin[k], ANSI_RESET);
         }
-
+        printf("  ");
         // linha do meio antes da borda
         if(k < n-1){
             printf("%s", TAB_ML);
@@ -92,6 +101,7 @@ void imprimeTabela(jogoSumplete jogo){
     }
 
     // borda inferior
+    
     printf("%s", TAB_BL);
     for(int i = 0; i < n-1; i++){
         printf("%s%s%s%s", TAB_HOR, TAB_HOR, TAB_HOR, TAB_BJ);
@@ -99,7 +109,7 @@ void imprimeTabela(jogoSumplete jogo){
     printf("%s%s%s%s\n", TAB_HOR, TAB_HOR, TAB_HOR, TAB_BR);
 
     // -------- DICAS DAS COLUNAS --------
-    printf("  ");
+    printf("   ");
     
     for(int i = 0; i < n; i++){
         int somaclReal = somaColReal(jogo, i);
@@ -111,7 +121,6 @@ void imprimeTabela(jogoSumplete jogo){
 
     printf("\n");
 
-    printf("-> \"adicionar\"\n-> \"remover\"\n-> \"resolver\"\n-> \"dica\"\n-> \"sair\"\n");
 }
 //Função para converter a palavra para letras minúsculas   
 void convertM(char *palavra){
@@ -141,16 +150,17 @@ int linhaSegura(char *linha, int tam){
 }
 int verificarCmdMenu(){
     char comando[30];
-    char acao[11];
+    char acao[12];
     char lixo;
     int a = linhaSegura(comando, sizeof(comando));
     if(a == 1){
         removeN(comando);
         removerEspaco(comando);
+        convertM(comando);
     }
     else if(a == 2)
         return -1;
-    int n = sscanf(comando,"%9s %c",acao, &lixo);
+    int n = sscanf(comando,"%10s %c",acao, &lixo);
     
     if (comando[0] == '\0')
         return -1;
@@ -169,6 +179,8 @@ int verificarCmdMenu(){
             return 5;
         else if(strcmp(acao, "sair") == 0)
             return 6;
+        else if(strcmp(acao, "continuar") == 0)
+            return 7;
     }
     return 0;
 }
@@ -305,22 +317,29 @@ int verificaComando(int *x, int *y){
 
 }
 
-void adicionarPos(Celula **jogo, int lin, int col, int tam){
+int adicionarPos(Celula **jogo, int lin, int col, int tam){
+    lin--;
+    col--;
     if(lin < 0|| col < 0||lin >= tam || col >= tam)
-        return;
+        return 0;
     if(jogo[lin][col].estado == 1)
         jogo[lin][col].estado = 0; //se já estiver "verde" volta para o estado inicial 0
     else
         jogo[lin][col].estado = 1;
-}
-void removerPos(Celula **jogo, int lin, int col, int tam){
+    return 1;
+    }
+int removerPos(Celula **jogo, int lin, int col, int tam){
+    lin--;
+    col--;
+    
     if(lin < 0|| col < 0||lin >= tam || col >= tam)
-        return;
+        return 0;
     if(jogo[lin][col].estado == 2)
         jogo[lin][col].estado = 0; //se já estiver "vermelho" volta para o estado inicial 0
     else
         jogo[lin][col].estado = 2;
-}
+    return 1;
+    }
 int verificaVitoria(jogoSumplete jogo){
 
     int somaLinha, somaColuna, cont = 0;
@@ -434,7 +453,7 @@ void liberaJogo(jogoSumplete *jogo){
 }
 int verificanArquivo(char *linha, int tam){
     while(1){
-        printf("\nDigite o nome do save, ou \"sair\" para voltar: ");
+        printf("\nDigite o nome do save -> (nomearquivo.sum), ou \"sair\" para voltar: ");
         if(linhaSegura(linha, tam) == 1){
             removeN(linha);
             removerEspaco(linha);
@@ -458,13 +477,13 @@ int verificanArquivo(char *linha, int tam){
                         for(int j = 0; j < 4; j++)
                             exten[j] = linha[i+j];
                         exten[4] = '\0'; 
-                        if(strcmp(exten, ".txt") == 0)
+                        if(strcmp(exten, ".sum") == 0)
                             return 2;
                         else
-                            printf("\n%sDIGITE A EXTENSÃO CORRETA!! .txt%s", ANSI_COLOR_RED, ANSI_RESET);
+                            printf("\n%sDIGITE A EXTENSÃO CORRETA!! .sum%s", ANSI_COLOR_RED, ANSI_RESET);
                     }
                     else
-                        printf("\n%sDIGITE A EXTENSÃO .txt%s", ANSI_COLOR_RED, ANSI_RESET);
+                        printf("\n%sDIGITE O NOME COM A EXTENSÃO (nomearquivo.sum)%s", ANSI_COLOR_RED, ANSI_RESET);
             }
         }
         else
@@ -492,4 +511,24 @@ int verificaNomeValido(char *nome, int tam){
     else
         printf("%s\nVOCÊ NÃO DEVE DIGITAR MAIS QUE 27 CARACTERES!!!%s", ANSI_COLOR_RED, ANSI_RESET);
     return 0;
+}
+int verificaSimNao(char *resposta){
+    removerEspaco(resposta);
+    removeN(resposta);
+    convertM(resposta);
+    int a = strlen(resposta);
+    if(a > 3){
+        printf("%s\nDIGITE SIM ou NAO%s", ANSI_COLOR_RED, ANSI_RESET);
+        return 0; 
+    }
+    else{
+        if(strcmp(resposta, "sim") == 0)
+            return 1;
+        else if(strcmp(resposta, "nao") == 0)
+            return 2;
+        else{
+            printf("%s\nDIGITE SIM ou NAO%s", ANSI_COLOR_RED, ANSI_RESET);
+            return 0;
+        }
+    }
 }
